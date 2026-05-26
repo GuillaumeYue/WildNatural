@@ -1,69 +1,97 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../api/authApi';
+import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { login } from '../api/authApi'
 
-const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const navigate = useNavigate();
+export default function Login() {
+  const [formData, setFormData] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
+    setError('')
+    setSubmitting(true)
     try {
-      await login(formData);
-      navigate('/dashboard');
+      await login(formData)
+      navigate('/')
     } catch (err) {
-      alert("Access Denied: Please verify your credentials.");
+      setError('Email or password is incorrect. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#020617] relative overflow-hidden p-6">
-      {/* Background Neon Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px]" />
-
-      <div className="relative w-full max-w-[440px] bg-slate-900/30 backdrop-blur-2xl border border-white/5 p-12 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+    <div className="min-h-screen flex items-center justify-center bg-blush-50 px-6 py-12">
+      <div className="w-full max-w-md bg-white border border-blush-200/70 px-10 py-12 sm:px-12 rounded-lg shadow-sm">
         <div className="text-center mb-10">
-          <h1 className="text-5xl font-black text-white tracking-tighter uppercase mb-2">
-            Wild Natural Products<span className="text-emerald-500 italic">.</span>
+          <p className="text-[11px] font-semibold tracking-[0.3em] text-rose-500 mb-4">
+            WILD NATURAL
+          </p>
+          <h1 className="font-display text-4xl font-semibold text-ink">
+            Welcome back
           </h1>
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.5em]">Identity Authentication</p>
+          <p className="mt-3 text-sm text-ink-muted">
+            Sign in to continue to your account.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
-            <input 
-              type="email" 
-              placeholder="operator@wild.com"
-              className="w-full bg-black/20 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder-slate-700 focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all"
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="email" className="block text-[11px] font-medium tracking-[0.15em] text-ink-soft uppercase mb-2">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="you@example.com"
+              value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required 
+              className="w-full bg-white border border-ink/15 rounded-md px-4 py-3 text-ink placeholder:text-ink-muted/50 outline-none transition-all focus:border-rose-500 focus:ring-2 focus:ring-rose-500/15"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
-            <input 
-              type="password" 
+          <div>
+            <label htmlFor="password" className="block text-[11px] font-medium tracking-[0.15em] text-ink-soft uppercase mb-2">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              autoComplete="current-password"
               placeholder="••••••••"
-              className="w-full bg-black/20 border border-white/10 rounded-2xl py-4 px-6 text-white placeholder-slate-700 focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all"
+              value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required 
+              className="w-full bg-white border border-ink/15 rounded-md px-4 py-3 text-ink placeholder:text-ink-muted/50 outline-none transition-all focus:border-rose-500 focus:ring-2 focus:ring-rose-500/15"
             />
           </div>
 
-          <button className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-5 rounded-2xl transition-all shadow-[0_0_30px_rgba(16,185,129,0.2)] active:scale-[0.98] uppercase tracking-widest text-xs">
-            Login
+          {error && (
+            <p className="text-sm text-rose-500" role="alert">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-4 rounded-md transition-colors mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {submitting ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
-        <p className="mt-10 text-center text-slate-500 text-xs">
-          New User? <Link to="/signup" className="text-white font-bold hover:text-emerald-400 transition-colors">Register</Link>
+        <p className="mt-10 text-center text-sm text-ink-muted">
+          New to WILD Natural?{' '}
+          <Link to="/signup" className="text-rose-500 font-medium hover:text-rose-600 transition-colors">
+            Create an account
+          </Link>
         </p>
       </div>
     </div>
-  );
-};
-
-export default Login;
+  )
+}
