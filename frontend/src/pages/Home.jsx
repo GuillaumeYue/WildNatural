@@ -1,84 +1,15 @@
-import { ShoppingCart, User } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import Nav from '../components/Nav'
+import MaskedIcon from '../components/MaskedIcon'
 import iconLeaves from '../assets/icon-leaves.png'
 import iconRabbit from '../assets/icon-rabbit.png'
 import iconBag from '../assets/icon-bag.png'
 import heroBottles from '../assets/hero-bottles.png'
-
-const NAV_ITEMS = ['Home', 'About Us', 'Customize', 'Products']
 
 const FEATURES = [
   { icon: iconLeaves, label: 'Natural\nIngredients' },
   { icon: iconRabbit, label: 'Cruelty Free' },
   { icon: iconBag,    label: 'Eco-friendly\nPackaging' },
 ]
-
-function MaskedIcon({ src, className = '', alt = '' }) {
-  return (
-    <span
-      role="img"
-      aria-label={alt}
-      className={className}
-      style={{
-        display: 'inline-block',
-        maskImage: `url(${src})`,
-        WebkitMaskImage: `url(${src})`,
-        maskRepeat: 'no-repeat',
-        WebkitMaskRepeat: 'no-repeat',
-        maskPosition: 'center',
-        WebkitMaskPosition: 'center',
-        maskSize: 'contain',
-        WebkitMaskSize: 'contain',
-      }}
-    />
-  )
-}
-
-function Logo() {
-  return (
-    <div className="flex items-center gap-2">
-      <MaskedIcon src={iconLeaves} className="h-8 w-8 bg-rose-500" alt="" />
-      <span className="font-display text-3xl font-bold tracking-wide text-ink">
-        WILD
-      </span>
-    </div>
-  )
-}
-
-function Nav() {
-  return (
-    <header className="absolute inset-x-0 top-0 z-20 bg-white">
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between px-10 py-6">
-        <Logo />
-
-        <nav className="flex items-center gap-12">
-          {NAV_ITEMS.map((item, i) => (
-            <a
-              key={item}
-              href="#"
-              className={`text-lg font-medium transition-colors hover:text-rose-500 ${
-                i === 0
-                  ? 'border-b-2 border-rose-500 pb-1 text-ink font-semibold'
-                  : 'text-ink-soft'
-              }`}
-            >
-              {item}
-            </a>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-5 text-ink">
-          <button aria-label="Cart" className="transition-opacity hover:opacity-70">
-            <ShoppingCart className="h-6 w-6" strokeWidth={1.8} />
-          </button>
-          <Link to="/login" aria-label="Account" className="transition-opacity hover:opacity-70">
-            <User className="h-6 w-6" strokeWidth={1.8} />
-          </Link>
-        </div>
-      </div>
-    </header>
-  )
-}
 
 function Hero() {
   return (
@@ -103,8 +34,7 @@ function Hero() {
           </h1>
 
           <p className="mt-12 max-w-lg text-xl font-medium leading-relaxed text-ink-soft">
-            Our carefully crafted skincare products are formulated with the
-            finest natural ingredients to address your unique skin concerns.
+            Handcrafted with the freshest quality ingredients and care! :)
           </p>
 
           <button className="mt-14 rounded-md bg-rose-500 px-14 py-6 text-base font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600">
