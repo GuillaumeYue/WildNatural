@@ -1,9 +1,8 @@
-import axios from 'axios';
+import axios from 'axios'
 
-// Set the base URL to your backend server
-const API = axios.create({ baseURL: 'http://localhost:5000/api' });
+const API = axios.create({ baseURL: 'http://localhost:5001/api' })
 
-export const login = (formData) => API.post('/login', formData);
-export const register = (formData) => API.post('/signup', formData);
+export const login = (formData) => API.post('/auth/login', formData)
+export const register = (formData) => API.post('/auth/register', formData)
 
-export default API;
+export default API
