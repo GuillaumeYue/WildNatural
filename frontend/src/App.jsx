@@ -4,6 +4,7 @@ import About from './pages/About'
 import Products from './pages/Products'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import Customize from './pages/Customize'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/customize" element={<Customize />} />
       </Routes>
     </Router>
   )

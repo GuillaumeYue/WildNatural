@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { label: 'Home',      to: '/' },
   { label: 'About Us',  to: '/about' },
   { label: 'Products',  to: '/products' },
-  { label: 'Customize', to: null },       // not built yet
+ { label: 'Customize', to: '/customize' },
 ]
 
 function Logo() {
