@@ -22,4 +22,12 @@
   .hero-curve {
     clip-path: ellipse(85% 95% at 75% 50%);
   }
+
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
