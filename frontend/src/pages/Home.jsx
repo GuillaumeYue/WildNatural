@@ -1,4 +1,5 @@
 import Nav from '../components/Nav'
+import Footer from '../components/Footer'
 import MaskedIcon from '../components/MaskedIcon'
 import iconLeaves from '../assets/icon-leaves.png'
 import iconRabbit from '../assets/icon-rabbit.png'
@@ -81,6 +82,7 @@ export default function Home() {
         <Hero />
         <WhyUs />
       </main>
+      <Footer />
     </div>
   )
 }

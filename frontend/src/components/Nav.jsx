@@ -63,9 +63,13 @@ export default function Nav() {
         </nav>
 
         <div className="flex items-center gap-5 text-ink">
-          <button aria-label="Cart" className="transition-opacity hover:opacity-70">
+          <Link
+            to="/cart"
+            aria-label="Cart"
+            className="transition-opacity hover:opacity-70"
+          >
             <ShoppingCart className="h-6 w-6" strokeWidth={1.8} />
-          </button>
+          </Link>
           <Link
             to="/login"
             aria-label="Account"

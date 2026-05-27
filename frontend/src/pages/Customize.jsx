@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Nav from '../components/Nav'
+import Footer from '../components/Footer'
 
 const INGREDIENTS = [
   'Rosemary',
@@ -166,6 +167,7 @@ export default function Customize() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   )
 }

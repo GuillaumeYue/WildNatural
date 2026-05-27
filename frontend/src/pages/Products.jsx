@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Nav from '../components/Nav'
+import Footer from '../components/Footer'
 import heroProductImg from '../assets/hero-product.png'
 import productSerumImg from '../assets/product-serum.png'
 import productCleanserImg from '../assets/product-cleanser.png'
@@ -217,6 +218,7 @@ export default function Products() {
           placeholderCount={COMING_SOON_PLACEHOLDERS}
         />
       </main>
+      <Footer />
     </div>
   )
 }
