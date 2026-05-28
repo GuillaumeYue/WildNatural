@@ -1,38 +1,47 @@
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Ensure the name is 'register' (lowercase 'r')
-exports.register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ message: "Operative already exists" });
+// Register
+exports.registerUser = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
 
-    const salt = await bcrypt.genSalt(12);
-    const hashedPassword = await bcrypt.hash(password, salt);
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
 
-    user = new User({ name, email, password: hashedPassword });
-    await user.save();
-    res.status(201).json({ message: "Identity Initialized Successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Database Auth Error" });
-  }
+        const user = await User.create({ name, email, password });
+        
+        res.status(201).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' }),
+        });
+    } catch (error) {
+        console.error('❌ Registration Error:', error.message);
+        res.status(400).json({ message: error.message });
+    }
 };
 
-// Ensure the name is 'login' (lowercase 'l')
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid Credentials" });
+// Login
+exports.loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Access Denied" });
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
-  } catch (err) {
-    res.status(500).json({ message: "Server Auth Error" });
-  }
+        if (user && (await user.matchPassword(password))) {
+            res.json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                token: jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' }),
+            });
+        } else {
+            res.status(401).json({ message: 'Invalid email or password' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
 };
