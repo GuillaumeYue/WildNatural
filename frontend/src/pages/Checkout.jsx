@@ -4,10 +4,8 @@ import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import API from '../api/axiosInstance'
 import { useAuth } from '../contexts/AuthContext'
+import { calculatePricing, TAX_LABEL } from '../lib/pricing'
 
-const TAX_RATE = 0.13                  // 13% HST (Ontario default — adjust per province later)
-const FREE_SHIPPING_THRESHOLD = 100    // free shipping over $100
-const SHIPPING_FLAT = 10
 const STORAGE_KEY = 'wild.checkoutItems'
 
 const PAYMENT_METHODS = ['Credit Card', 'PayPal']
@@ -45,6 +43,15 @@ export default function Checkout() {
     }
   }, [])
 
+  const promo = useMemo(() => {
+    try {
+      const raw = sessionStorage.getItem('wild.checkoutPromo')
+      return raw ? JSON.parse(raw) : null
+    } catch {
+      return null
+    }
+  }, [])
+
   // Auth gate + empty-cart gate
   useEffect(() => {
     if (!user) {
@@ -63,13 +70,20 @@ export default function Checkout() {
     country: 'Canada',
   })
   const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS[0])
+  const [card, setCard] = useState({
+    number: '',
+    name: '',
+    expiry: '',
+    cvv: '',
+  })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   const itemsPrice = items.reduce((sum, i) => sum + i.price * i.qty, 0)
-  const shippingPrice = itemsPrice > FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FLAT
-  const taxPrice = +(itemsPrice * TAX_RATE).toFixed(2)
-  const totalPrice = +(itemsPrice + shippingPrice + taxPrice).toFixed(2)
+  const { discount, shippingPrice, taxPrice, totalPrice } = calculatePricing(
+    itemsPrice,
+    promo
+  )
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -95,6 +109,7 @@ export default function Checkout() {
       })
 
       sessionStorage.removeItem(STORAGE_KEY)
+      sessionStorage.removeItem('wild.checkoutPromo')
       navigate('/order-confirmation', { state: { order }, replace: true })
     } catch (err) {
       setError(
@@ -142,7 +157,7 @@ export default function Checkout() {
                       label="City"
                       value={shipping.city}
                       onChange={(v) => setShipping({ ...shipping, city: v })}
-                      placeholder="Toronto"
+                      placeholder="Montréal"
                       required
                     />
                     <Field
@@ -151,7 +166,7 @@ export default function Checkout() {
                       onChange={(v) =>
                         setShipping({ ...shipping, postalCode: v })
                       }
-                      placeholder="M5V 2T6"
+                      placeholder="H3A 0G4"
                       required
                     />
                   </div>
@@ -194,9 +209,53 @@ export default function Checkout() {
                     )
                   })}
                 </div>
+
+                {paymentMethod === 'Credit Card' && (
+                  <div className="mt-4 p-6 border border-ink/15 rounded-md space-y-4 bg-blush-50/40">
+                    <Field
+                      label="Card Number"
+                      value={card.number}
+                      onChange={(v) => setCard({ ...card, number: v })}
+                      placeholder="1234 5678 9012 3456"
+                      maxLength={19}
+                      inputMode="numeric"
+                      autoComplete="cc-number"
+                      required
+                    />
+                    <Field
+                      label="Cardholder Name"
+                      value={card.name}
+                      onChange={(v) => setCard({ ...card, name: v })}
+                      placeholder="Jane Doe"
+                      autoComplete="cc-name"
+                      required
+                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field
+                        label="Expiry (MM/YY)"
+                        value={card.expiry}
+                        onChange={(v) => setCard({ ...card, expiry: v })}
+                        placeholder="MM / YY"
+                        maxLength={7}
+                        autoComplete="cc-exp"
+                        required
+                      />
+                      <Field
+                        label="CVV"
+                        value={card.cvv}
+                        onChange={(v) => setCard({ ...card, cvv: v })}
+                        placeholder="123"
+                        maxLength={4}
+                        inputMode="numeric"
+                        autoComplete="cc-csc"
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <p className="mt-4 text-xs text-ink-muted italic">
-                  Payment integration is not yet live — orders are recorded as
-                  unpaid until Stripe is wired up.
+                  Demo only — no real charge will be processed.
                 </p>
               </section>
             </div>
@@ -226,13 +285,24 @@ export default function Checkout() {
 
               <div className="border-t border-ink/10 pt-4 space-y-2 text-sm">
                 <Row label="Subtotal" value={itemsPrice} />
+                {discount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-rose-500 font-medium">
+                      Discount
+                      {promo ? ` (${promo.code})` : ''}
+                    </span>
+                    <span className="text-rose-500">
+                      −${discount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
                 <Row
                   label={
                     shippingPrice === 0 ? 'Shipping (free)' : 'Shipping'
                   }
                   value={shippingPrice}
                 />
-                <Row label="Tax (HST 13%)" value={taxPrice} />
+                <Row label={TAX_LABEL} value={taxPrice} />
                 <div className="flex justify-between pt-4 border-t border-ink/10 mt-3 font-semibold text-base">
                   <span className="text-ink">Total</span>
                   <span className="text-ink">${totalPrice.toFixed(2)}</span>

@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
+import { calculatePricing, TAX_LABEL } from '../lib/pricing'
+import { lookupPromo } from '../lib/promo'
 import productSerumImg from '../assets/product-serum.png'
 import productCreamImg from '../assets/product-cream.png'
 
@@ -109,6 +111,9 @@ function EmptyState() {
 
 export default function Cart() {
   const [items, setItems] = useState(INITIAL_CART)
+  const [promoInput, setPromoInput] = useState('')
+  const [appliedPromo, setAppliedPromo] = useState(null)
+  const [promoError, setPromoError] = useState('')
   const navigate = useNavigate()
 
   const handleQtyChange = (id, qty) => {
@@ -117,12 +122,34 @@ export default function Cart() {
     )
   }
 
-  const total = items.reduce((sum, item) => sum + item.price * item.qty, 0)
+  const handleApplyPromo = (e) => {
+    e.preventDefault()
+    setPromoError('')
+    const found = lookupPromo(promoInput)
+    if (!found) {
+      setPromoError('That code is not valid.')
+      return
+    }
+    setAppliedPromo(found)
+    setPromoInput('')
+  }
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null)
+    setPromoError('')
+  }
+
+  const itemsPrice = items.reduce((sum, item) => sum + item.price * item.qty, 0)
+  const { discount, shippingPrice, taxPrice, totalPrice } = calculatePricing(
+    itemsPrice,
+    appliedPromo
+  )
   const isEmpty = items.length === 0
 
   const handleCheckout = () => {
     if (isEmpty) return
     sessionStorage.setItem('wild.checkoutItems', JSON.stringify(items))
+    sessionStorage.setItem('wild.checkoutPromo', JSON.stringify(appliedPromo))
     navigate('/checkout')
   }
 
@@ -156,15 +183,83 @@ export default function Cart() {
               <div className="grid md:grid-cols-2 gap-12 mt-12">
                 <div />
                 <div>
-                  <div className="flex items-baseline justify-between mb-3">
+                  {/* Promo code */}
+                  <div className="pb-6 mb-6 border-b border-ink/10">
+                    {appliedPromo ? (
+                      <div className="flex justify-between items-center bg-blush-50 px-4 py-3 rounded-md">
+                        <div>
+                          <p className="text-xs font-semibold text-rose-500 tracking-[0.15em] uppercase">
+                            {appliedPromo.code}
+                          </p>
+                          <p className="text-xs text-ink-soft mt-1">
+                            {appliedPromo.label}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleRemovePromo}
+                          className="text-xs text-ink-muted hover:text-rose-500 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <form onSubmit={handleApplyPromo} className="flex gap-2">
+                          <input
+                            type="text"
+                            value={promoInput}
+                            onChange={(e) => setPromoInput(e.target.value)}
+                            placeholder="Promo code"
+                            className="flex-1 border border-ink/15 rounded-md px-4 py-2 text-sm uppercase tracking-wider outline-none focus:border-rose-500"
+                          />
+                          <button
+                            type="submit"
+                            className="px-5 py-2 border border-ink/20 rounded-md text-xs font-semibold tracking-[0.2em] uppercase text-ink hover:border-rose-500 hover:text-rose-500 transition-colors"
+                          >
+                            Apply
+                          </button>
+                        </form>
+                        {promoError && (
+                          <p className="mt-2 text-xs text-rose-500">{promoError}</p>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 text-sm mb-4">
+                    <div className="flex justify-between">
+                      <span className="text-ink-muted">Subtotal</span>
+                      <span className="text-ink">${itemsPrice.toFixed(2)}</span>
+                    </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-rose-500 font-medium">
+                          Discount
+                          {appliedPromo ? ` (${appliedPromo.code})` : ''}
+                        </span>
+                        <span className="text-rose-500">
+                          −${discount.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-ink-muted">
+                        {shippingPrice === 0 ? 'Shipping (free)' : 'Shipping'}
+                      </span>
+                      <span className="text-ink">${shippingPrice.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-ink-muted">{TAX_LABEL}</span>
+                      <span className="text-ink">${taxPrice.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-baseline justify-between pt-4 border-t border-ink/10 mb-8">
                     <p className="text-xl text-ink">Total</p>
                     <p className="font-display text-4xl font-semibold text-ink">
-                      ${total}
+                      ${totalPrice.toFixed(2)}
                     </p>
                   </div>
-                  <p className="text-xs text-ink-muted mb-8">
-                    Shipping Fee will be calculated at the time of purchase.
-                  </p>
                   <button
                     onClick={handleCheckout}
                     className="w-full bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-5 rounded-md transition-colors"
