@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addOrderItems } = require('../controllers/orderController');
+const { addOrderItems } = require('../Controllers/orderController');
 
 // Bring in the security guard! You must be logged in to place an order.
 const { protect } = require('../middleware/authMiddleware');

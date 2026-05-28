@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getUserCart, addToCart, removeFromCart } = require('../controllers/cartController');
+const { getUserCart, addToCart, removeFromCart } = require('../Controllers/cartController');
 
 // Import the security middleware
 const { protect } = require('../middleware/authMiddleware');

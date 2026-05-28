@@ -6,7 +6,7 @@ const {
     createProduct, 
     updateProduct, 
     deleteProduct 
-} = require('../controllers/productController');
+} = require('../Controllers/productController');
 
 // Import your security middleware
 const { protect, adminOnly } = require('../middleware/authMiddleware');

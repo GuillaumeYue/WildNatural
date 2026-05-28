@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser } = require('../controllers/authController');
+const { registerUser, loginUser } = require('../Controllers/authController');
 
 // The path here is relative to '/api/auth' in server.js
 router.post('/register', registerUser); // MUST BE '/register'
