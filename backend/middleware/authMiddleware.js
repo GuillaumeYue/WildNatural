@@ -10,7 +10,9 @@ const protect = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Adds user id and role to the request
+    // JWT is signed with { id: user._id }. Expose both `id` and `_id`
+    // so controllers using either convention work.
+    req.user = { ...decoded, _id: decoded.id };
     next();
   } catch (error) {
     res.status(401).json({ message: "Not authorized, token failed" });
