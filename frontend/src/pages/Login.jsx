@@ -1,20 +1,25 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { login } from '../api/authApi'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { login as loginApi } from '../api/authApi'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  const { login } = useAuth()
+  const from = location.state?.from || '/'
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setSubmitting(true)
     try {
-      await login(formData)
-      navigate('/')
+      const response = await loginApi(formData)
+      login(response.data)
+      navigate(from, { replace: true })
     } catch (err) {
       setError('Email or password is incorrect. Please try again.')
     } finally {

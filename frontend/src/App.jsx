@@ -6,6 +6,8 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Customize from './pages/Customize'
 import Cart from './pages/Cart'
+import Checkout from './pages/Checkout'
+import OrderConfirmation from './pages/OrderConfirmation'
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/customize" element={<Customize />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/order-confirmation" element={<OrderConfirmation />} />
       </Routes>
     </Router>
   )

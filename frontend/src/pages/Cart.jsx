@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import productSerumImg from '../assets/product-serum.png'
@@ -11,7 +11,7 @@ import productCreamImg from '../assets/product-cream.png'
  */
 const INITIAL_CART = [
   {
-    id: 'serum',
+    id: '6657f1a2b8c4d5e6f7890001',
     name: 'WILD Botanical Serum',
     size: '30 ml',
     price: 48,
@@ -19,7 +19,7 @@ const INITIAL_CART = [
     image: productSerumImg,
   },
   {
-    id: 'cream',
+    id: '6657f1a2b8c4d5e6f7890002',
     name: 'WILD Renewal Cream',
     size: '50 ml',
     price: 52,
@@ -109,6 +109,7 @@ function EmptyState() {
 
 export default function Cart() {
   const [items, setItems] = useState(INITIAL_CART)
+  const navigate = useNavigate()
 
   const handleQtyChange = (id, qty) => {
     setItems((prev) =>
@@ -118,6 +119,12 @@ export default function Cart() {
 
   const total = items.reduce((sum, item) => sum + item.price * item.qty, 0)
   const isEmpty = items.length === 0
+
+  const handleCheckout = () => {
+    if (isEmpty) return
+    sessionStorage.setItem('wild.checkoutItems', JSON.stringify(items))
+    navigate('/checkout')
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -158,7 +165,10 @@ export default function Cart() {
                   <p className="text-xs text-ink-muted mb-8">
                     Shipping Fee will be calculated at the time of purchase.
                   </p>
-                  <button className="w-full bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-5 rounded-md transition-colors">
+                  <button
+                    onClick={handleCheckout}
+                    className="w-full bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-5 rounded-md transition-colors"
+                  >
                     Checkout
                   </button>
                 </div>

@@ -1,20 +1,23 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { register } from '../api/authApi'
+import { register as registerApi } from '../api/authApi'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Signup() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setSubmitting(true)
     try {
-      await register(formData)
-      navigate('/login')
+      const response = await registerApi(formData)
+      login(response.data)
+      navigate('/', { replace: true })
     } catch (err) {
       setError('We could not create your account. Please check your details and try again.')
     } finally {

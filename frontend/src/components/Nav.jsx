@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { ShoppingCart, User } from 'lucide-react'
 import logoWild from '../assets/logo-wild.png'
+import { useAuth } from '../contexts/AuthContext'
 
 const NAV_ITEMS = [
   { label: 'Home',      to: '/' },
@@ -23,6 +24,7 @@ function Logo() {
 
 export default function Nav() {
   const { pathname } = useLocation()
+  const { user, logout } = useAuth()
 
   return (
     <header className="absolute inset-x-0 top-0 z-20 bg-white">
@@ -70,13 +72,25 @@ export default function Nav() {
           >
             <ShoppingCart className="h-6 w-6" strokeWidth={1.8} />
           </Link>
-          <Link
-            to="/login"
-            aria-label="Account"
-            className="transition-opacity hover:opacity-70"
-          >
-            <User className="h-6 w-6" strokeWidth={1.8} />
-          </Link>
+          {user ? (
+            <button
+              type="button"
+              onClick={logout}
+              aria-label={`Log out ${user.name || ''}`}
+              className="transition-opacity hover:opacity-70 flex items-center gap-2 text-sm text-ink"
+            >
+              <User className="h-6 w-6" strokeWidth={1.8} />
+              <span className="hidden md:inline">Log out</span>
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              aria-label="Account"
+              className="transition-opacity hover:opacity-70"
+            >
+              <User className="h-6 w-6" strokeWidth={1.8} />
+            </Link>
+          )}
         </div>
       </div>
     </header>
