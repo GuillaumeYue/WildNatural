@@ -2,17 +2,47 @@ import { Link, useLocation } from 'react-router-dom'
 import { ShoppingCart, User } from 'lucide-react'
 import logoWild from '../assets/logo-wild.png'
 import { useAuth } from '../contexts/AuthContext'
+import { useLang } from '../contexts/LanguageContext'
+
+function LanguageToggle() {
+  const { lang, setLang } = useLang()
+  const baseClass = 'text-xs font-semibold tracking-[0.15em] uppercase transition-colors'
+  const activeClass = 'text-rose-500'
+  const inactiveClass = 'text-ink-muted hover:text-ink'
+
+  return (
+    <div className="flex items-center" role="group" aria-label="Language">
+      <button
+        type="button"
+        onClick={() => setLang('en')}
+        aria-pressed={lang === 'en'}
+        className={`${baseClass} ${lang === 'en' ? activeClass : inactiveClass}`}
+      >
+        EN
+      </button>
+      <span aria-hidden className="mx-2 text-ink-muted/40">|</span>
+      <button
+        type="button"
+        onClick={() => setLang('fr')}
+        aria-pressed={lang === 'fr'}
+        className={`${baseClass} ${lang === 'fr' ? activeClass : inactiveClass}`}
+      >
+        FR
+      </button>
+    </div>
+  )
+}
 
 const NAV_ITEMS = [
-  { label: 'Home',      to: '/' },
+  { label: 'Home',      to: '/home' },
   { label: 'About Us',  to: '/about' },
   { label: 'Products',  to: '/products' },
- { label: 'Customize', to: '/customize' },
+  { label: 'Customize', to: '/customize' },
 ]
 
 function Logo() {
   return (
-    <Link to="/" aria-label="WILD Natural — Home" className="flex items-center">
+    <Link to="/home" aria-label="WILD Natural — Home" className="flex items-center">
       <img
         src={logoWild}
         alt="WILD Natural"
@@ -65,6 +95,7 @@ export default function Nav() {
         </nav>
 
         <div className="flex items-center gap-5 text-ink">
+          <LanguageToggle />
           <Link
             to="/cart"
             aria-label="Cart"
@@ -72,25 +103,14 @@ export default function Nav() {
           >
             <ShoppingCart className="h-6 w-6" strokeWidth={1.8} />
           </Link>
-          {user ? (
-            <button
-              type="button"
-              onClick={logout}
-              aria-label={`Log out ${user.name || ''}`}
-              className="transition-opacity hover:opacity-70 flex items-center gap-2 text-sm text-ink"
-            >
-              <User className="h-6 w-6" strokeWidth={1.8} />
-              <span className="hidden md:inline">Log out</span>
-            </button>
-          ) : (
-            <Link
-              to="/login"
-              aria-label="Account"
-              className="transition-opacity hover:opacity-70"
-            >
-              <User className="h-6 w-6" strokeWidth={1.8} />
-            </Link>
-          )}
+          <Link
+            to={user ? '/profile' : '/login'}
+            aria-label={user ? `My account (${user.name})` : 'Sign in'}
+            title={user ? `Signed in as ${user.name}` : 'Sign in'}
+            className="transition-opacity hover:opacity-70"
+          >
+            <User className="h-6 w-6" strokeWidth={1.8} />
+          </Link>
         </div>
       </div>
     </header>

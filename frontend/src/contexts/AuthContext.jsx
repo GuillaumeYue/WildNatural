@@ -34,8 +34,24 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  /**
+   * Partial update of the stored user. Used by the profile page to
+   * change the display name etc. While there's no backend endpoint
+   * to persist this, the change survives a page refresh through
+   * localStorage. Swap the body for an API call when /api/auth/me
+   * lands.
+   */
+  const updateUser = (updates) => {
+    setUser((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, ...updates }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      return next
+    })
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
