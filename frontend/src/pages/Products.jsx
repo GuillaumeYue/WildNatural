@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
@@ -47,6 +48,22 @@ const ALL_PRODUCTS = [
 const COMING_SOON_PLACEHOLDERS = 1
 
 function HeroShowcase({ product }) {
+
+  const navigate = useNavigate()
+
+  const handleShopNow = () => {
+    const cartItem = {
+      id: product.name,
+      name: product.name,
+      size: '30 ml',
+      price: product.price,
+      qty: 1,
+      image: product.image,
+    }
+
+    sessionStorage.setItem('wild.checkoutItems', JSON.stringify([cartItem]))
+    navigate('/cart')
+  }
   return (
     <section className="bg-blush-50 pt-32 pb-20 px-10">
       <div className="mx-auto max-w-[1400px]">
@@ -67,12 +84,19 @@ function HeroShowcase({ product }) {
               {product.description}
             </p>
             <div className="flex items-center gap-4 flex-wrap mb-8">
-              <button className="rounded-md bg-rose-500 px-10 py-4 text-sm font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600">
+              <button
+                type="button"
+                onClick={handleShopNow}
+                className="rounded-md bg-rose-500 px-10 py-4 text-sm font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600"
+              >
                 SHOP NOW
               </button>
-              <button className="rounded-md border-2 border-ink/20 px-10 py-4 text-sm font-bold tracking-[0.2em] text-ink transition-colors hover:border-rose-500 hover:text-rose-500">
+              <Link
+                to="/about"
+                className="rounded-md border-2 border-ink/20 px-10 py-4 text-sm font-bold tracking-[0.2em] text-ink transition-colors hover:border-rose-500 hover:text-rose-500"
+              >
                 LEARN MORE
-              </button>
+              </Link>
             </div>
             <p className="font-display text-3xl font-semibold text-ink">
               ${product.price}.00

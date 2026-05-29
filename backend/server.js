@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const stripeRoutes = require('./routes/stripeRoutes');
 
 // Initialization
 dotenv.config();
@@ -31,6 +32,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes); 
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/stripe', stripeRoutes);
+
 
 // Health Check Route
 app.get('/', (req, res) => {

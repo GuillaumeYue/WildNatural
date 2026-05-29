@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import MaskedIcon from '../components/MaskedIcon'
@@ -38,9 +39,11 @@ function Hero() {
             Handcrafted with the freshest quality ingredients and care! :)
           </p>
 
-          <button className="mt-14 rounded-md bg-rose-500 px-14 py-6 text-base font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600">
-            SHOP NOW
-          </button>
+          <Link to="/products">
+            <button className="mt-14 rounded-md bg-rose-500 px-14 py-6 text-base font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600">
+              SHOP NOW
+            </button>
+          </Link>
         </div>
       </div>
     </section>
