@@ -1,8 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db');
 
+// Load env BEFORE requiring routes — stripeController initialises the
+// Stripe SDK at module load time and needs STRIPE_SECRET_KEY to be set.
+dotenv.config();
+
+const connectDB = require('./config/db');
 
 // Route Imports
 const authRoutes = require('./routes/authRoutes');
@@ -13,7 +17,6 @@ const cartRoutes = require('./routes/cartRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 // Initialization
-dotenv.config();
 connectDB();
 
 const app = express();
