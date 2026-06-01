@@ -34,10 +34,10 @@ function LanguageToggle() {
 }
 
 const NAV_ITEMS = [
-  { label: 'Home',      to: '/home' },
-  { label: 'About Us',  to: '/about' },
-  { label: 'Products',  to: '/products' },
-  { label: 'Customize', to: '/customize' },
+  { tKey: 'nav.home',      to: '/home' },
+  { tKey: 'nav.about',     to: '/about' },
+  { tKey: 'nav.products',  to: '/products' },
+  { tKey: 'nav.customize', to: '/customize' },
 ]
 
 function Logo() {
@@ -55,6 +55,7 @@ function Logo() {
 export default function Nav() {
   const { pathname } = useLocation()
   const { user, logout } = useAuth()
+  const { t } = useLang()
 
   return (
     <header className="absolute inset-x-0 top-0 z-20 bg-white">
@@ -72,13 +73,13 @@ export default function Nav() {
             if (item.to === null) {
               return (
                 <a
-                  key={item.label}
+                  key={item.tKey}
                   href="#"
                   className={`${baseClass} ${stateClass}`}
                   aria-disabled="true"
                   onClick={(e) => e.preventDefault()}
                 >
-                  {item.label}
+                  {t(item.tKey)}
                 </a>
               )
             }
@@ -88,7 +89,7 @@ export default function Nav() {
                 to={item.to}
                 className={`${baseClass} ${stateClass}`}
               >
-                {item.label}
+                {t(item.tKey)}
               </Link>
             )
           })}

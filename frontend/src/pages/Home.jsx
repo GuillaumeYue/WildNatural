@@ -6,14 +6,16 @@ import iconLeaves from '../assets/icon-leaves.png'
 import iconRabbit from '../assets/icon-rabbit.png'
 import iconBag from '../assets/icon-bag.png'
 import heroBottles from '../assets/hero-bottles.png'
+import { useLang } from '../contexts/LanguageContext'
 
 const FEATURES = [
-  { icon: iconLeaves, label: 'Natural\nIngredients' },
-  { icon: iconRabbit, label: 'Cruelty Free' },
-  { icon: iconBag,    label: 'Eco-friendly\nPackaging' },
+  { icon: iconLeaves, tKey: 'home.natural' },
+  { icon: iconRabbit, tKey: 'home.cruelty' },
+  { icon: iconBag,    tKey: 'home.eco' },
 ]
 
 function Hero() {
+  const { t } = useLang()
   return (
     <section className="relative min-h-screen overflow-hidden bg-white pt-28">
       <div className="absolute inset-y-0 right-0 w-[62%] overflow-hidden">
@@ -30,18 +32,18 @@ function Hero() {
       <div className="relative z-10 mx-auto flex max-w-[1400px] flex-col px-10 pt-20 pb-32">
         <div className="max-w-[720px]">
           <h1 className="font-display font-bold text-ink text-[48px] leading-[1.05] tracking-[-0.02em] md:text-[60px] lg:text-[72px]">
-            Nourish Your Skin,
+            {t('home.heroHeadline1')}
             <br />
-            Radiate Confidence
+            {t('home.heroHeadline2')}
           </h1>
 
           <p className="mt-12 max-w-lg text-xl font-medium leading-relaxed text-ink-soft">
-            Handcrafted with the freshest quality ingredients and care! :)
+            {t('home.heroSubtitle')}
           </p>
 
           <Link to="/products">
             <button className="mt-14 rounded-md bg-rose-500 px-14 py-6 text-base font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600">
-              SHOP NOW
+              {t('home.shopNow')}
             </button>
           </Link>
         </div>
@@ -51,26 +53,30 @@ function Hero() {
 }
 
 function WhyUs() {
+  const { t } = useLang()
   return (
     <section className="relative bg-blush-50 pb-24 pt-16">
       <div className="mx-auto max-w-[1400px] px-10">
         <h2 className="font-display text-2xl font-medium tracking-[0.15em] text-ink">
-          WHY US?
+          {t('home.whyUs')}
         </h2>
 
         <div className="mt-16 grid grid-cols-1 gap-16 md:grid-cols-3">
-          {FEATURES.map(({ icon, label }) => (
-            <div key={label} className="flex flex-col items-center text-center">
-              <MaskedIcon
-                src={icon}
-                alt={label.replace('\n', ' ')}
-                className="h-20 w-20 bg-rose-500"
-              />
-              <p className="mt-6 whitespace-pre-line text-base font-normal text-ink">
-                {label}
-              </p>
-            </div>
-          ))}
+          {FEATURES.map(({ icon, tKey }) => {
+            const label = t(tKey)
+            return (
+              <div key={tKey} className="flex flex-col items-center text-center">
+                <MaskedIcon
+                  src={icon}
+                  alt={label.replace('\n', ' ')}
+                  className="h-20 w-20 bg-rose-500"
+                />
+                <p className="mt-6 whitespace-pre-line text-base font-normal text-ink">
+                  {label}
+                </p>
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>

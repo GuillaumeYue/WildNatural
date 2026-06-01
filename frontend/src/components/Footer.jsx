@@ -1,57 +1,59 @@
 import { Link } from 'react-router-dom'
 import { Instagram, Twitter, Facebook } from 'lucide-react'
+import { useLang } from '../contexts/LanguageContext'
 
 const COLUMNS = [
   {
-    title: 'Shop',
+    titleKey: 'footer.col.shop',
     links: [
-      { label: 'All Products',         to: '/products' },
-      { label: 'Botanical Serum',      to: '/products' },
-      { label: 'Hydrating Cleanser',   to: '/products' },
-      { label: 'Renewal Cream',        to: '/products' },
+      { tKey: 'footer.allProducts', to: '/products' },
+      { tKey: 'footer.serum',       to: '/products' },
+      { tKey: 'footer.cleanser',    to: '/products' },
+      { tKey: 'footer.cream',       to: '/products' },
     ],
   },
   {
-    title: 'Brand',
+    titleKey: 'footer.col.brand',
     links: [
-      { label: 'About Us',         to: '/about' },
-      { label: 'Our Story',        to: '/about' },
-      { label: 'Sustainability',   to: '/about' },
+      { tKey: 'footer.about',   to: '/about' },
+      { tKey: 'footer.story',   to: '/about' },
+      { tKey: 'footer.sustain', to: '/about' },
     ],
   },
   {
-    title: 'Help',
+    titleKey: 'footer.col.help',
     links: [
-      { label: 'Customize',        to: '/customize' },
-      { label: 'Shipping & Returns' },
-      { label: 'FAQ' },
+      { tKey: 'footer.customize', to: '/customize' },
+      { tKey: 'footer.shipping' },
+      { tKey: 'footer.faq' },
     ],
   },
   {
-    title: 'Contact',
+    titleKey: 'footer.col.contact',
     links: [
-      { label: 'Contact Us' },
-      { label: 'Newsletter' },
+      { tKey: 'footer.contactUs' },
+      { tKey: 'footer.newsletter' },
     ],
   },
 ]
 
-const LEGAL_LINKS = [
-  'Company Profile',
-  'Privacy Policy',
-  'Terms of Service',
-  'Refund / Return Policy',
+const LEGAL_KEYS = [
+  'footer.legal.company',
+  'footer.legal.privacy',
+  'footer.legal.terms',
+  'footer.legal.refund',
 ]
 
-function FooterLink({ link }) {
+function FooterLink({ link, label }) {
   const className = 'text-sm text-cream/65 hover:text-cream transition-colors'
   if (link.to) {
-    return <Link to={link.to} className={className}>{link.label}</Link>
+    return <Link to={link.to} className={className}>{label}</Link>
   }
-  return <a href="#" className={className}>{link.label}</a>
+  return <a href="#" className={className}>{label}</a>
 }
 
 export default function Footer() {
+  const { t } = useLang()
   return (
     <footer className="bg-rose-500 text-cream px-10 pt-16 pb-8 mt-auto">
       <div className="mx-auto max-w-[1400px]">
@@ -62,7 +64,7 @@ export default function Footer() {
               WILD
             </p>
             <p className="text-[11px] tracking-[0.3em] uppercase text-cream/60 mb-4">
-              Follow Us
+              {t('footer.followUs')}
             </p>
             <div className="flex gap-5">
               <a href="#" aria-label="Twitter" className="text-cream/80 hover:text-cream transition-colors">
@@ -79,12 +81,14 @@ export default function Footer() {
 
           {/* Link columns */}
           {COLUMNS.map((col) => (
-            <div key={col.title}>
-              <h3 className="font-semibold text-cream mb-6 text-base">{col.title}</h3>
+            <div key={col.titleKey}>
+              <h3 className="font-semibold text-cream mb-6 text-base">
+                {t(col.titleKey)}
+              </h3>
               <ul className="space-y-3">
                 {col.links.map((link) => (
-                  <li key={link.label}>
-                    <FooterLink link={link} />
+                  <li key={link.tKey}>
+                    <FooterLink link={link} label={t(link.tKey)} />
                   </li>
                 ))}
               </ul>
@@ -94,11 +98,11 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-16 pt-6 border-t border-cream/10 flex flex-wrap items-center justify-between gap-4 text-xs text-cream/55">
-          <p>WILD Natural. © 2026 All rights reserved.</p>
+          <p>{t('footer.copyright')}</p>
           <div className="flex flex-wrap gap-6">
-            {LEGAL_LINKS.map((label) => (
-              <a key={label} href="#" className="hover:text-cream transition-colors">
-                {label}
+            {LEGAL_KEYS.map((key) => (
+              <a key={key} href="#" className="hover:text-cream transition-colors">
+                {t(key)}
               </a>
             ))}
           </div>
