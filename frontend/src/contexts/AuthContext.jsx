@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react'
+import { updateProfile as updateProfileApi } from '../api/authApi'
 
 const AuthContext = createContext(null)
 
@@ -17,10 +18,10 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(readStoredUser)
 
   /**
-   * Called after a successful /auth/login or /auth/register response.
-   * Krunal's backend returns { _id, name, email, token } — we store
-   * the whole object plus the token under separate keys so
-   * axiosInstance.js can read `localStorage.getItem('token')` directly.
+   * Called after a successful /users/login or /users/register response.
+   * Krunal's backend returns the full profile plus a token; we keep the
+   * whole object under `wild.user` and mirror the token under `token`
+   * so axiosInstance can attach it as a Bearer header.
    */
   const login = (userData) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
@@ -35,11 +36,8 @@ export function AuthProvider({ children }) {
   }
 
   /**
-   * Partial update of the stored user. Used by the profile page to
-   * change the display name etc. While there's no backend endpoint
-   * to persist this, the change survives a page refresh through
-   * localStorage. Swap the body for an API call when /api/auth/me
-   * lands.
+   * Local-only merge of the stored user. Used for optimistic updates
+   * where we don't need (or want to wait for) a server round-trip.
    */
   const updateUser = (updates) => {
     setUser((prev) => {
@@ -50,8 +48,37 @@ export function AuthProvider({ children }) {
     })
   }
 
+  /**
+   * Persist a profile change to the backend (PUT /api/users/profile) and
+   * merge the returned user into state. The backend returns a fresh token,
+   * so we refresh that too.
+   *
+   * @returns {Promise<{ ok: boolean, error?: string }>}
+   */
+  const updateProfile = async (updates) => {
+    try {
+      const { data } = await updateProfileApi(updates)
+      setUser((prev) => {
+        const next = { ...prev, ...data }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+        if (data?.token) localStorage.setItem('token', data.token)
+        return next
+      })
+      return { ok: true }
+    } catch (err) {
+      return {
+        ok: false,
+        error:
+          err.response?.data?.message ||
+          'Could not save your changes. Please try again.',
+      }
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, updateUser, updateProfile }}
+    >
       {children}
     </AuthContext.Provider>
   )

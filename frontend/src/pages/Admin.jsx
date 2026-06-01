@@ -606,13 +606,15 @@ export default function Admin() {
   useEffect(() => {
     if (!user) {
       navigate('/login', { state: { from: '/admin' }, replace: true })
+    } else if (user.role !== 'admin') {
+      // Backend User model now carries role: 'user' | 'admin'. Non-admins
+      // are bounced back to the storefront. Make an account admin in Mongo
+      // (or via a seed) to grant access.
+      navigate('/home', { replace: true })
     }
-    // TODO: when User.role lands in backend, gate on user.role === 'admin'
-    // and redirect non-admins to /home with a flash message. For now any
-    // logged-in user can preview the admin shell.
   }, [user, navigate])
 
-  if (!user) return null
+  if (!user || user.role !== 'admin') return null
 
   return (
     <div className="min-h-screen bg-blush-50/40 flex">
