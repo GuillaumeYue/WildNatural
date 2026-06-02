@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { login as loginApi } from '../api/authApi'
 import { useAuth } from '../contexts/AuthContext'
+import { useLang } from '../contexts/LanguageContext'
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' })
@@ -10,6 +11,7 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
   const { login } = useAuth()
+  const { t } = useLang()
   const from = location.state?.from || '/'
 
   const handleSubmit = async (e) => {
@@ -21,7 +23,7 @@ export default function Login() {
       login(response.data)
       navigate(from, { replace: true })
     } catch (err) {
-      setError('Email or password is incorrect. Please try again.')
+      setError(t('login.error'))
     } finally {
       setSubmitting(false)
     }
@@ -35,17 +37,17 @@ export default function Login() {
             WILD NATURAL
           </p>
           <h1 className="font-display text-4xl font-semibold text-ink">
-            Welcome back
+            {t('login.welcome')}
           </h1>
           <p className="mt-3 text-sm text-ink-muted">
-            Sign in to continue to your account.
+            {t('login.subtitle')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label htmlFor="email" className="block text-[11px] font-medium tracking-[0.15em] text-ink-soft uppercase mb-2">
-              Email
+              {t('login.email')}
             </label>
             <input
               id="email"
@@ -61,7 +63,7 @@ export default function Login() {
 
           <div>
             <label htmlFor="password" className="block text-[11px] font-medium tracking-[0.15em] text-ink-soft uppercase mb-2">
-              Password
+              {t('login.password')}
             </label>
             <input
               id="password"
@@ -86,14 +88,14 @@ export default function Login() {
             disabled={submitting}
             className="w-full bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-4 rounded-md transition-colors mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Signing in…' : 'Sign in'}
+            {submitting ? t('login.submitting') : t('login.submit')}
           </button>
         </form>
 
         <p className="mt-10 text-center text-sm text-ink-muted">
-          New to WILD Natural?{' '}
+          {t('login.newHere')}{' '}
           <Link to="/signup" className="text-rose-500 font-medium hover:text-rose-600 transition-colors">
-            Create an account
+            {t('login.createLink')}
           </Link>
         </p>
       </div>

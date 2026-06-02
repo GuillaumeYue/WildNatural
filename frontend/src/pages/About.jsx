@@ -5,38 +5,27 @@ import iconLeaves from '../assets/icon-leaves.png'
 import iconRabbit from '../assets/icon-rabbit.png'
 import iconBag from '../assets/icon-bag.png'
 import founderPortrait from '../assets/founder-portrait.jpg'
+import { useLang } from '../contexts/LanguageContext'
 
 const VALUES = [
-  {
-    icon: iconLeaves,
-    title: 'Naturally Sourced',
-    body: 'Plant-led ingredients chosen for what they do, not how they sound.',
-  },
-  {
-    icon: iconRabbit,
-    title: 'Cruelty-Free',
-    body: 'Never tested on animals — formulated, refined, and trusted by humans.',
-  },
-  {
-    icon: iconBag,
-    title: 'Eco-Conscious Packaging',
-    body: 'Recycled and recyclable materials, designed for a smaller footprint.',
-  },
+  { icon: iconLeaves, titleKey: 'about.value.natural', bodyKey: 'about.value.naturalBody' },
+  { icon: iconRabbit, titleKey: 'about.value.cruelty', bodyKey: 'about.value.crueltyBody' },
+  { icon: iconBag,    titleKey: 'about.value.eco',     bodyKey: 'about.value.ecoBody' },
 ]
 
 function HeroBand() {
+  const { t } = useLang()
   return (
     <section className="bg-rose-500 text-cream pt-40 pb-24 px-10">
       <div className="mx-auto max-w-[1400px]">
         <p className="text-[11px] tracking-[0.3em] uppercase opacity-70 mb-6 font-medium">
-          Home / Our Brand
+          {t('about.crumb')}
         </p>
         <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-semibold mb-8">
-          Our Story
+          {t('about.heroTitle')}
         </h1>
         <p className="text-lg md:text-xl italic max-w-2xl opacity-90 leading-relaxed">
-          Clean skincare, crafted with intention. We make products that honor
-          your skin and the world it lives in.
+          {t('about.heroTagline')}
         </p>
       </div>
     </section>
@@ -44,26 +33,20 @@ function HeroBand() {
 }
 
 function Heritage() {
+  const { t } = useLang()
   return (
     <section className="bg-white py-24 px-10">
       <div className="mx-auto max-w-[1200px] grid md:grid-cols-2 gap-16 items-center">
         <div>
           <p className="text-xs tracking-[0.3em] uppercase text-rose-500 mb-4 font-semibold">
-            Heritage
+            {t('about.heritageLabel')}
           </p>
           <h2 className="font-display text-3xl md:text-4xl font-semibold mb-6 text-ink">
-            A quiet beginning.
+            {t('about.heritageTitle')}
           </h2>
           <div className="space-y-4 text-ink-soft leading-relaxed text-base">
-            <p>
-              WILD Natural began at a kitchen table — small batches, careful
-              hands, and a refusal to compromise on what touches your skin.
-            </p>
-            <p>
-              Today our team formulates every product with the same intention:
-              ingredients you can pronounce, results you can see, and a story
-              you can stand behind.
-            </p>
+            <p>{t('about.heritageBody1')}</p>
+            <p>{t('about.heritageBody2')}</p>
           </div>
         </div>
         <div className="aspect-[4/5] rounded-lg overflow-hidden bg-blush-100">
@@ -79,30 +62,31 @@ function Heritage() {
 }
 
 function OurPromise() {
+  const { t } = useLang()
   return (
     <section className="bg-blush-50 py-24 px-10">
       <div className="mx-auto max-w-[1200px]">
         <div className="text-center mb-16">
           <p className="text-xs tracking-[0.3em] uppercase text-rose-500 mb-4 font-semibold">
-            Our Promise
+            {t('about.promiseLabel')}
           </p>
           <h2 className="font-display text-3xl md:text-4xl font-semibold text-ink">
-            Beauty that respects.
+            {t('about.promiseTitle')}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
-          {VALUES.map(({ icon, title, body }) => (
-            <div key={title} className="text-center md:text-left">
+          {VALUES.map(({ icon, titleKey, bodyKey }) => (
+            <div key={titleKey} className="text-center md:text-left">
               <MaskedIcon
                 src={icon}
-                alt={title}
+                alt={t(titleKey)}
                 className="h-14 w-14 bg-rose-500 mb-6 mx-auto md:mx-0"
               />
               <h3 className="font-display text-xl font-semibold mb-3 text-ink">
-                {title}
+                {t(titleKey)}
               </h3>
-              <p className="text-sm text-ink-soft leading-relaxed">{body}</p>
+              <p className="text-sm text-ink-soft leading-relaxed">{t(bodyKey)}</p>
             </div>
           ))}
         </div>
@@ -112,19 +96,18 @@ function OurPromise() {
 }
 
 function Closing() {
+  const { t } = useLang()
   return (
     <section className="bg-rose-500 text-cream py-24 px-10">
       <div className="mx-auto max-w-[800px] text-center">
         <p className="text-[11px] tracking-[0.3em] uppercase opacity-70 mb-6 font-medium">
-          Diversity &amp; Inclusion
+          {t('about.inclusionLabel')}
         </p>
         <h2 className="font-display text-3xl md:text-4xl font-semibold mb-6">
-          Beauty for everyone.
+          {t('about.inclusionTitle')}
         </h2>
         <p className="text-lg italic opacity-90 leading-relaxed">
-          Beauty is a form of self-expression, and should be inclusive of every
-          culture and tradition. Our products are made for every skin, every
-          story, every ritual.
+          {t('about.inclusionBody')}
         </p>
       </div>
     </section>

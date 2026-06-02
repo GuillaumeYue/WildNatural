@@ -4,20 +4,14 @@ import { Check, Plus, Trash2 } from 'lucide-react'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import { useAuth } from '../contexts/AuthContext'
+import { useLang } from '../contexts/LanguageContext'
 
 const SECTIONS = [
-  { key: 'account',  label: 'Account' },
-  { key: 'shipping', label: 'Shipping' },
-  { key: 'payment',  label: 'Payment' },
-  { key: 'orders',   label: 'Orders' },
+  { key: 'account',  tKey: 'profile.section.account' },
+  { key: 'shipping', tKey: 'profile.section.shipping' },
+  { key: 'payment',  tKey: 'profile.section.payment' },
+  { key: 'orders',   tKey: 'profile.section.orders' },
 ]
-
-const SECTION_TITLE = {
-  account:  'Account',
-  shipping: 'Shipping Address',
-  payment:  'Payment Methods',
-  orders:   'Order History',
-}
 
 const CARDS_KEY = 'wild.cards'
 
@@ -456,6 +450,7 @@ function OrdersSection() {
 // ─────────────────────────────────────────────────────────────
 export default function Profile() {
   const { user, logout } = useAuth()
+  const { t } = useLang()
   const navigate = useNavigate()
   const [section, setSection] = useState('account')
 
@@ -477,13 +472,13 @@ export default function Profile() {
         <div className="mx-auto max-w-[1200px]">
           {/* Header */}
           <p className="text-xs tracking-[0.3em] uppercase text-ink-muted mb-4">
-            Home / My Account
+            {t('profile.crumb')}
           </p>
           <h1 className="font-display text-4xl md:text-5xl font-semibold text-ink mb-2">
-            My Account
+            {t('profile.title')}
           </h1>
           <p className="text-ink-soft mb-12">
-            Welcome back, {firstName}.
+            {t('profile.welcome')} {firstName}.
           </p>
 
           <div className="grid lg:grid-cols-[240px_1fr] gap-10">
@@ -502,7 +497,7 @@ export default function Profile() {
                           : 'text-ink-soft hover:bg-blush-50 hover:text-ink'
                       }`}
                     >
-                      {s.label}
+                      {t(s.tKey)}
                     </button>
                   )
                 })}
@@ -515,7 +510,7 @@ export default function Profile() {
                   }}
                   className="w-full text-left px-4 py-3 rounded-md text-sm font-medium text-ink-muted hover:text-rose-500 transition-colors"
                 >
-                  Sign out
+                  {t('profile.signOut')}
                 </button>
               </div>
             </aside>
@@ -523,7 +518,7 @@ export default function Profile() {
             {/* Section content */}
             <section>
               <p className="text-xs tracking-[0.3em] uppercase text-rose-500 font-semibold mb-6">
-                {SECTION_TITLE[section]}
+                {t(SECTIONS.find((s) => s.key === section)?.tKey)}
               </p>
               {section === 'account' && <AccountSection />}
               {section === 'shipping' && <ShippingSection />}

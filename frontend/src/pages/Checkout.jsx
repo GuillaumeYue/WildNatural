@@ -4,7 +4,8 @@ import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import API from '../api/axiosInstance'
 import { useAuth } from '../contexts/AuthContext'
-import { calculatePricing, TAX_LABEL } from '../lib/pricing'
+import { useLang } from '../contexts/LanguageContext'
+import { calculatePricing } from '../lib/pricing'
 
 const STORAGE_KEY = 'wild.checkoutItems'
 
@@ -32,6 +33,7 @@ function Field({ label, value, onChange, ...rest }) {
 export default function Checkout() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useLang()
 
   // Items are stashed in sessionStorage by Cart so they survive an auth roundtrip.
   const items = useMemo(() => {
@@ -114,10 +116,7 @@ export default function Checkout() {
       sessionStorage.removeItem('wild.checkoutPromo')
       navigate('/order-confirmation', { state: { order }, replace: true })
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          'Something went wrong placing your order. Please try again.'
-      )
+      setError(err.response?.data?.message || t('checkout.errorGeneric'))
     } finally {
       setSubmitting(false)
     }
@@ -133,7 +132,7 @@ export default function Checkout() {
       <main className="flex-1 pt-32 pb-24 px-10">
         <div className="mx-auto max-w-[1200px]">
           <h1 className="font-display text-4xl md:text-5xl font-semibold text-ink text-center mb-16">
-            Checkout
+            {t('checkout.title')}
           </h1>
 
           <form
@@ -144,11 +143,11 @@ export default function Checkout() {
             <div className="space-y-12">
               <section>
                 <h2 className="text-xs tracking-[0.3em] uppercase text-rose-500 font-semibold mb-6">
-                  Shipping Address
+                  {t('checkout.shippingHeader')}
                 </h2>
                 <div className="space-y-4">
                   <Field
-                    label="Address"
+                    label={t('checkout.address')}
                     value={shipping.address}
                     onChange={(v) => setShipping({ ...shipping, address: v })}
                     placeholder="123 Wild Lane"
@@ -156,14 +155,14 @@ export default function Checkout() {
                   />
                   <div className="grid sm:grid-cols-2 gap-4">
                     <Field
-                      label="City"
+                      label={t('checkout.city')}
                       value={shipping.city}
                       onChange={(v) => setShipping({ ...shipping, city: v })}
                       placeholder="Montréal"
                       required
                     />
                     <Field
-                      label="Postal Code"
+                      label={t('checkout.postalCode')}
                       value={shipping.postalCode}
                       onChange={(v) =>
                         setShipping({ ...shipping, postalCode: v })
@@ -173,7 +172,7 @@ export default function Checkout() {
                     />
                   </div>
                   <Field
-                    label="Country"
+                    label={t('checkout.country')}
                     value={shipping.country}
                     onChange={(v) => setShipping({ ...shipping, country: v })}
                     placeholder="Canada"
@@ -184,7 +183,7 @@ export default function Checkout() {
 
               <section>
                 <h2 className="text-xs tracking-[0.3em] uppercase text-rose-500 font-semibold mb-6">
-                  Payment Method
+                  {t('checkout.paymentHeader')}
                 </h2>
                 <div className="space-y-3">
                   {PAYMENT_METHODS.map((method) => {
@@ -215,7 +214,7 @@ export default function Checkout() {
                 {paymentMethod === 'Credit Card' && (
                   <div className="mt-4 p-6 border border-ink/15 rounded-md space-y-4 bg-blush-50/40">
                     <Field
-                      label="Card Number"
+                      label={t('checkout.cardNumber')}
                       value={card.number}
                       onChange={(v) => setCard({ ...card, number: v })}
                       placeholder="1234 5678 9012 3456"
@@ -225,7 +224,7 @@ export default function Checkout() {
                       required
                     />
                     <Field
-                      label="Cardholder Name"
+                      label={t('checkout.cardName')}
                       value={card.name}
                       onChange={(v) => setCard({ ...card, name: v })}
                       placeholder="Jane Doe"
@@ -234,7 +233,7 @@ export default function Checkout() {
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <Field
-                        label="Expiry (MM/YY)"
+                        label={t('checkout.cardExpiry')}
                         value={card.expiry}
                         onChange={(v) => setCard({ ...card, expiry: v })}
                         placeholder="MM / YY"
@@ -243,7 +242,7 @@ export default function Checkout() {
                         required
                       />
                       <Field
-                        label="CVV"
+                        label={t('checkout.cardCvv')}
                         value={card.cvv}
                         onChange={(v) => setCard({ ...card, cvv: v })}
                         placeholder="123"
@@ -257,7 +256,7 @@ export default function Checkout() {
                 )}
 
                 <p className="mt-4 text-xs text-ink-muted italic">
-                  Demo only — no real charge will be processed.
+                  {t('checkout.demoNote')}
                 </p>
               </section>
             </div>
@@ -265,7 +264,7 @@ export default function Checkout() {
             {/* Right column: order summary */}
             <aside className="bg-blush-50 p-8 rounded-md h-fit">
               <h2 className="font-display text-2xl font-semibold text-ink mb-6">
-                Order Summary
+                {t('checkout.orderSummary')}
               </h2>
 
               <ul className="space-y-3 mb-6">
@@ -286,11 +285,11 @@ export default function Checkout() {
               </ul>
 
               <div className="border-t border-ink/10 pt-4 space-y-2 text-sm">
-                <Row label="Subtotal" value={itemsPrice} />
+                <Row label={t('cart.subtotal')} value={itemsPrice} />
                 {discount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-rose-500 font-medium">
-                      Discount
+                      {t('cart.discount')}
                       {promo ? ` (${promo.code})` : ''}
                     </span>
                     <span className="text-rose-500">
@@ -300,13 +299,15 @@ export default function Checkout() {
                 )}
                 <Row
                   label={
-                    shippingPrice === 0 ? 'Shipping (free)' : 'Shipping'
+                    shippingPrice === 0
+                      ? t('checkout.shippingFree')
+                      : t('checkout.shipping')
                   }
                   value={shippingPrice}
                 />
-                <Row label={TAX_LABEL} value={taxPrice} />
+                <Row label={t('cart.tax')} value={taxPrice} />
                 <div className="flex justify-between pt-4 border-t border-ink/10 mt-3 font-semibold text-base">
-                  <span className="text-ink">Total</span>
+                  <span className="text-ink">{t('cart.total')}</span>
                   <span className="text-ink">${totalPrice.toFixed(2)}</span>
                 </div>
               </div>
@@ -322,7 +323,7 @@ export default function Checkout() {
                 disabled={submitting}
                 className="w-full mt-6 bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-4 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {submitting ? 'Placing Order…' : 'Place Order'}
+                {submitting ? t('checkout.placingOrder') : t('checkout.placeOrder')}
               </button>
             </aside>
           </form>

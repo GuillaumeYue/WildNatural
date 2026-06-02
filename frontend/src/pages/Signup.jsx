@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { register as registerApi } from '../api/authApi'
 import { useAuth } from '../contexts/AuthContext'
+import { useLang } from '../contexts/LanguageContext'
 
 export default function Signup() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' })
@@ -9,6 +10,7 @@ export default function Signup() {
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
   const { login } = useAuth()
+  const { t } = useLang()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -19,7 +21,7 @@ export default function Signup() {
       login(response.data)
       navigate('/', { replace: true })
     } catch (err) {
-      setError('We could not create your account. Please check your details and try again.')
+      setError(t('signup.error'))
     } finally {
       setSubmitting(false)
     }
@@ -36,16 +38,16 @@ export default function Signup() {
             WILD NATURAL
           </p>
           <h1 className="font-display text-4xl font-semibold text-ink">
-            Create your account
+            {t('signup.headline')}
           </h1>
           <p className="mt-3 text-sm text-ink-muted">
-            Start your skincare journey with us.
+            {t('signup.subtitle')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="name" className={labelClass}>Full name</label>
+            <label htmlFor="name" className={labelClass}>{t('signup.name')}</label>
             <input
               id="name"
               type="text"
@@ -59,7 +61,7 @@ export default function Signup() {
           </div>
 
           <div>
-            <label htmlFor="email" className={labelClass}>Email</label>
+            <label htmlFor="email" className={labelClass}>{t('signup.email')}</label>
             <input
               id="email"
               type="email"
@@ -73,13 +75,13 @@ export default function Signup() {
           </div>
 
           <div>
-            <label htmlFor="password" className={labelClass}>Password</label>
+            <label htmlFor="password" className={labelClass}>{t('signup.password')}</label>
             <input
               id="password"
               type="password"
               required
               autoComplete="new-password"
-              placeholder="At least 8 characters"
+              placeholder={t('signup.pwHint')}
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className={inputClass}
@@ -97,14 +99,14 @@ export default function Signup() {
             disabled={submitting}
             className="w-full bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-4 rounded-md transition-colors mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Creating account…' : 'Create account'}
+            {submitting ? t('signup.submitting') : t('signup.submit')}
           </button>
         </form>
 
         <p className="mt-10 text-center text-sm text-ink-muted">
-          Already have an account?{' '}
+          {t('signup.haveAcct')}{' '}
           <Link to="/login" className="text-rose-500 font-medium hover:text-rose-600 transition-colors">
-            Sign in
+            {t('signup.signInLink')}
           </Link>
         </p>
       </div>

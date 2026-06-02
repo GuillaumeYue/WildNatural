@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
-import { calculatePricing, TAX_LABEL } from '../lib/pricing'
+import { calculatePricing } from '../lib/pricing'
 import { lookupPromo } from '../lib/promo'
+import { useLang } from '../contexts/LanguageContext'
 import productSerumImg from '../assets/product-serum.png'
 import productCreamImg from '../assets/product-cream.png'
 
@@ -36,14 +37,15 @@ const GRID_COLS =
   'grid grid-cols-[2.5fr_1fr_1fr_1fr] gap-6 items-center'
 
 function CartHeader() {
+  const { t } = useLang()
   return (
     <div
       className={`${GRID_COLS} pb-4 border-b border-ink/10 text-[11px] tracking-[0.2em] uppercase text-ink-muted`}
     >
-      <div>Cart</div>
-      <div>Price</div>
-      <div>Quantity</div>
-      <div className="text-right">Sub-total</div>
+      <div>{t('cart.col.cart')}</div>
+      <div>{t('cart.col.price')}</div>
+      <div>{t('cart.col.qty')}</div>
+      <div className="text-right">{t('cart.col.subtotal')}</div>
     </div>
   )
 }
@@ -94,22 +96,24 @@ function CartRow({ item, onQtyChange }) {
 }
 
 function EmptyState() {
+  const { t } = useLang()
   return (
     <div className="text-center py-24">
       <p className="text-lg text-ink-muted mb-8">
-        Your cart is empty.
+        {t('cart.empty')}
       </p>
       <Link
         to="/products"
         className="inline-block bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-4 px-10 rounded-md transition-colors"
       >
-        Browse Products
+        {t('cart.browse')}
       </Link>
     </div>
   )
 }
 
 export default function Cart() {
+  const { t } = useLang()
   const [items, setItems] = useState(INITIAL_CART)
   const [promoInput, setPromoInput] = useState('')
   const [appliedPromo, setAppliedPromo] = useState(null)
@@ -127,7 +131,7 @@ export default function Cart() {
     setPromoError('')
     const found = lookupPromo(promoInput)
     if (!found) {
-      setPromoError('That code is not valid.')
+      setPromoError(t('cart.invalidCode'))
       return
     }
     setAppliedPromo(found)
@@ -162,11 +166,11 @@ export default function Cart() {
           {/* Title + promo */}
           <div className="text-center mb-16">
             <h1 className="font-display text-4xl md:text-5xl font-semibold text-ink mb-6">
-              Cart
+              {t('cart.title')}
             </h1>
             <p className="text-sm text-ink-soft leading-relaxed max-w-xl mx-auto">
-              Purchase one more item of the sale products and receive free
-              shipping! <span className="text-ink-muted">*Automatically applied on the next page.</span>
+              {t('cart.promoMessage')}{' '}
+              <span className="text-ink-muted">{t('cart.promoAuto')}</span>
             </p>
           </div>
 
@@ -200,7 +204,7 @@ export default function Cart() {
                           onClick={handleRemovePromo}
                           className="text-xs text-ink-muted hover:text-rose-500 transition-colors"
                         >
-                          Remove
+                          {t('cart.remove')}
                         </button>
                       </div>
                     ) : (
@@ -210,14 +214,14 @@ export default function Cart() {
                             type="text"
                             value={promoInput}
                             onChange={(e) => setPromoInput(e.target.value)}
-                            placeholder="Promo code"
+                            placeholder={t('cart.promoPlaceholder')}
                             className="flex-1 border border-ink/15 rounded-md px-4 py-2 text-sm uppercase tracking-wider outline-none focus:border-rose-500"
                           />
                           <button
                             type="submit"
                             className="px-5 py-2 border border-ink/20 rounded-md text-xs font-semibold tracking-[0.2em] uppercase text-ink hover:border-rose-500 hover:text-rose-500 transition-colors"
                           >
-                            Apply
+                            {t('cart.apply')}
                           </button>
                         </form>
                         {promoError && (
@@ -229,13 +233,13 @@ export default function Cart() {
 
                   <div className="space-y-2 text-sm mb-4">
                     <div className="flex justify-between">
-                      <span className="text-ink-muted">Subtotal</span>
+                      <span className="text-ink-muted">{t('cart.subtotal')}</span>
                       <span className="text-ink">${itemsPrice.toFixed(2)}</span>
                     </div>
                     {discount > 0 && (
                       <div className="flex justify-between">
                         <span className="text-rose-500 font-medium">
-                          Discount
+                          {t('cart.discount')}
                           {appliedPromo ? ` (${appliedPromo.code})` : ''}
                         </span>
                         <span className="text-rose-500">
@@ -245,17 +249,17 @@ export default function Cart() {
                     )}
                     <div className="flex justify-between">
                       <span className="text-ink-muted">
-                        {shippingPrice === 0 ? 'Shipping (free)' : 'Shipping'}
+                        {shippingPrice === 0 ? t('cart.shippingFree') : t('cart.shipping')}
                       </span>
                       <span className="text-ink">${shippingPrice.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-ink-muted">{TAX_LABEL}</span>
+                      <span className="text-ink-muted">{t('cart.tax')}</span>
                       <span className="text-ink">${taxPrice.toFixed(2)}</span>
                     </div>
                   </div>
                   <div className="flex items-baseline justify-between pt-4 border-t border-ink/10 mb-8">
-                    <p className="text-xl text-ink">Total</p>
+                    <p className="text-xl text-ink">{t('cart.total')}</p>
                     <p className="font-display text-4xl font-semibold text-ink">
                       ${totalPrice.toFixed(2)}
                     </p>
@@ -264,7 +268,7 @@ export default function Cart() {
                     onClick={handleCheckout}
                     className="w-full bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-5 rounded-md transition-colors"
                   >
-                    Checkout
+                    {t('cart.checkout')}
                   </button>
                 </div>
               </div>
