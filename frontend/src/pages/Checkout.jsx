@@ -63,10 +63,12 @@ export default function Checkout() {
     }
   }, [user, items.length, navigate])
 
+  // Pre-fill from the signed-in user's saved profile so returning
+  // customers don't re-type their address every time.
   const [shipping, setShipping] = useState({
-    address: '',
-    city: '',
-    postalCode: '',
+    address: user?.address || '',
+    city: user?.city || '',
+    postalCode: user?.postalCode || '',
     country: 'Canada',
   })
   const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS[0])

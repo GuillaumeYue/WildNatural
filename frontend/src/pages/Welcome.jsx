@@ -2,9 +2,11 @@ import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logoWild from '../assets/logo-wild.png'
 import { useAuth } from '../contexts/AuthContext'
+import { useLang } from '../contexts/LanguageContext'
 
 export default function Welcome() {
   const { user } = useAuth()
+  const { t } = useLang()
   const navigate = useNavigate()
 
   // Logged-in users skip the entry page and go straight to the main site.
@@ -27,17 +29,16 @@ export default function Welcome() {
         />
 
         <p className="text-xs tracking-[0.3em] uppercase text-rose-500 font-semibold mb-5">
-          Welcome
+          {t('welcome.label')}
         </p>
 
         <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold text-ink leading-[1.05] mb-6">
-          Step into something{' '}
-          <span className="italic font-normal">naturally yours.</span>
+          {t('welcome.headline1')}{' '}
+          <span className="italic font-normal">{t('welcome.headline2')}</span>
         </h1>
 
         <p className="text-lg text-ink-soft italic leading-relaxed mb-10 max-w-md mx-auto">
-          Handcrafted skincare in small batches. Foraged ingredients,
-          no shortcuts.
+          {t('welcome.subtitle')}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -45,13 +46,13 @@ export default function Welcome() {
             to="/login"
             className="text-center bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-4 px-10 rounded-md transition-colors"
           >
-            Sign In
+            {t('welcome.signIn')}
           </Link>
           <Link
             to="/signup"
             className="text-center border-2 border-ink/20 hover:border-rose-500 hover:text-rose-500 text-ink font-bold tracking-[0.2em] uppercase text-sm py-4 px-10 rounded-md transition-colors"
           >
-            Create Account
+            {t('welcome.create')}
           </Link>
         </div>
 
@@ -59,7 +60,7 @@ export default function Welcome() {
           to="/home"
           className="text-sm text-ink-muted hover:text-rose-500 transition-colors inline-flex items-center gap-1"
         >
-          Explore as a guest <span aria-hidden>→</span>
+          {t('welcome.guest')} <span aria-hidden>→</span>
         </Link>
       </div>
 

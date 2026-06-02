@@ -19,8 +19,7 @@ const SECTION_TITLE = {
   orders:   'Order History',
 }
 
-const ADDRESS_KEY = 'wild.address'
-const CARDS_KEY   = 'wild.cards'
+const CARDS_KEY = 'wild.cards'
 
 const inputClass =
   'w-full bg-white border border-ink/15 rounded-md px-4 py-3 text-ink placeholder:text-ink-muted/50 outline-none transition-all focus:border-rose-500 focus:ring-2 focus:ring-rose-500/15'
@@ -74,25 +73,69 @@ function SavedFlash({ show }) {
   )
 }
 
+function ErrorText({ message }) {
+  if (!message) return null
+  return <span className="text-sm text-rose-500">{message}</span>
+}
+
 // ─────────────────────────────────────────────────────────────
-//  Account section — name (editable) + email (read-only)
+//  Account section — name + password (PUT /api/users/profile),
+//  email read-only
 // ─────────────────────────────────────────────────────────────
 function AccountSection() {
-  const { user, updateUser } = useAuth()
-  const [name, setName] = useState(user.name || '')
-  const [saved, setSaved] = useState(false)
+  const { user, updateProfile } = useAuth()
 
-  const handleSave = (e) => {
+  const [name, setName] = useState(user.name || '')
+  const [nameSaved, setNameSaved] = useState(false)
+  const [nameErr, setNameErr] = useState('')
+  const [nameBusy, setNameBusy] = useState(false)
+
+  const [pw, setPw] = useState({ next: '', confirm: '' })
+  const [pwSaved, setPwSaved] = useState(false)
+  const [pwErr, setPwErr] = useState('')
+  const [pwBusy, setPwBusy] = useState(false)
+
+  const handleSaveName = async (e) => {
     e.preventDefault()
-    updateUser({ name })
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1800)
+    setNameErr('')
+    setNameBusy(true)
+    const res = await updateProfile({ name })
+    setNameBusy(false)
+    if (res.ok) {
+      setNameSaved(true)
+      setTimeout(() => setNameSaved(false), 1800)
+    } else {
+      setNameErr(res.error)
+    }
+  }
+
+  const handleSavePassword = async (e) => {
+    e.preventDefault()
+    setPwErr('')
+    if (pw.next.length < 8) {
+      setPwErr('Password must be at least 8 characters.')
+      return
+    }
+    if (pw.next !== pw.confirm) {
+      setPwErr('Passwords do not match.')
+      return
+    }
+    setPwBusy(true)
+    const res = await updateProfile({ password: pw.next })
+    setPwBusy(false)
+    if (res.ok) {
+      setPw({ next: '', confirm: '' })
+      setPwSaved(true)
+      setTimeout(() => setPwSaved(false), 1800)
+    } else {
+      setPwErr(res.error)
+    }
   }
 
   return (
     <div className="space-y-8">
       <Card title="Display Name">
-        <form onSubmit={handleSave} className="space-y-5">
+        <form onSubmit={handleSaveName} className="space-y-5">
           <Field
             label="Name"
             value={name}
@@ -101,8 +144,11 @@ function AccountSection() {
             required
           />
           <div className="flex items-center gap-4">
-            <PrimaryButton>Save</PrimaryButton>
-            <SavedFlash show={saved} />
+            <PrimaryButton disabled={nameBusy}>
+              {nameBusy ? 'Saving…' : 'Save'}
+            </PrimaryButton>
+            <SavedFlash show={nameSaved} />
+            <ErrorText message={nameErr} />
           </div>
         </form>
       </Card>
@@ -115,51 +161,77 @@ function AccountSection() {
       </Card>
 
       <Card title="Password">
-        <p className="text-ink-soft text-sm">
-          Password reset isn't wired up yet — coming once the backend exposes
-          a change-password endpoint.
-        </p>
+        <form onSubmit={handleSavePassword} className="space-y-5">
+          <Field
+            label="New Password"
+            type="password"
+            value={pw.next}
+            onChange={(v) => setPw({ ...pw, next: v })}
+            placeholder="At least 8 characters"
+            autoComplete="new-password"
+            required
+          />
+          <Field
+            label="Confirm Password"
+            type="password"
+            value={pw.confirm}
+            onChange={(v) => setPw({ ...pw, confirm: v })}
+            placeholder="Re-enter new password"
+            autoComplete="new-password"
+            required
+          />
+          <div className="flex items-center gap-4">
+            <PrimaryButton disabled={pwBusy}>
+              {pwBusy ? 'Updating…' : 'Update Password'}
+            </PrimaryButton>
+            <SavedFlash show={pwSaved} />
+            <ErrorText message={pwErr} />
+          </div>
+        </form>
       </Card>
     </div>
   )
 }
 
 // ─────────────────────────────────────────────────────────────
-//  Shipping section — one default address (saved to localStorage)
+//  Shipping section — default address + phone
+//  (PUT /api/users/profile). Country is QC-store fixed (the backend
+//  User model has no country field).
 // ─────────────────────────────────────────────────────────────
-const EMPTY_ADDRESS = {
-  address: '',
-  city: '',
-  postalCode: '',
-  country: 'Canada',
-}
-
 function ShippingSection() {
-  const [address, setAddress] = useState(() => {
-    try {
-      const raw = localStorage.getItem(ADDRESS_KEY)
-      return raw ? { ...EMPTY_ADDRESS, ...JSON.parse(raw) } : EMPTY_ADDRESS
-    } catch {
-      return EMPTY_ADDRESS
-    }
+  const { user, updateProfile } = useAuth()
+  const [form, setForm] = useState({
+    address: user.address || '',
+    city: user.city || '',
+    postalCode: user.postalCode || '',
+    phone: user.phone || '',
   })
   const [saved, setSaved] = useState(false)
+  const [err, setErr] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  const handleSave = (e) => {
+  const setField = (key) => (v) => setForm({ ...form, [key]: v })
+
+  const handleSave = async (e) => {
     e.preventDefault()
-    localStorage.setItem(ADDRESS_KEY, JSON.stringify(address))
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1800)
+    setErr('')
+    setBusy(true)
+    const res = await updateProfile(form)
+    setBusy(false)
+    if (res.ok) {
+      setSaved(true)
+      setTimeout(() => setSaved(false), 1800)
+    } else {
+      setErr(res.error)
+    }
   }
-
-  const setField = (key) => (v) => setAddress({ ...address, [key]: v })
 
   return (
     <Card title="Default Shipping Address">
       <form onSubmit={handleSave} className="space-y-5">
         <Field
           label="Address"
-          value={address.address}
+          value={form.address}
           onChange={setField('address')}
           placeholder="123 Wild Lane"
           required
@@ -167,28 +239,33 @@ function ShippingSection() {
         <div className="grid sm:grid-cols-2 gap-5">
           <Field
             label="City"
-            value={address.city}
+            value={form.city}
             onChange={setField('city')}
             placeholder="Montréal"
             required
           />
           <Field
             label="Postal Code"
-            value={address.postalCode}
+            value={form.postalCode}
             onChange={setField('postalCode')}
             placeholder="H3A 0G4"
             required
           />
         </div>
         <Field
-          label="Country"
-          value={address.country}
-          onChange={setField('country')}
-          required
+          label="Phone"
+          type="tel"
+          value={form.phone}
+          onChange={setField('phone')}
+          placeholder="(514) 555-0142"
+          autoComplete="tel"
         />
         <div className="flex items-center gap-4 pt-2">
-          <PrimaryButton>Save Address</PrimaryButton>
+          <PrimaryButton disabled={busy}>
+            {busy ? 'Saving…' : 'Save Address'}
+          </PrimaryButton>
           <SavedFlash show={saved} />
+          <ErrorText message={err} />
         </div>
       </form>
     </Card>
