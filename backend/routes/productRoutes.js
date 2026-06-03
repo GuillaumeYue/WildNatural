@@ -1,25 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const { 
-    getProducts, 
-    getProductById, 
-    createProduct, 
-    updateProduct, 
-    deleteProduct 
+
+const {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
 } = require('../Controllers/productController');
 
-// Import your security middleware
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 
-// Base Route: /api/products
-router.route('/')
-    .get(getProducts)                         // Public
-    .post(protect, adminOnly, createProduct); // Admin Only
+router
+  .route('/')
+  .get(getProducts)
+  .post(protect, adminOnly, createProduct);
 
-// ID Route: /api/products/:id
-router.route('/:id')
-    .get(getProductById)                      // Public
-    .put(protect, adminOnly, updateProduct)   // Admin Only
-    .delete(protect, adminOnly, deleteProduct); // Admin Only
+router
+  .route('/:id')
+  .get(getProductById)
+  .put(protect, adminOnly, updateProduct)
+  .delete(protect, adminOnly, deleteProduct);
 
 module.exports = router;
