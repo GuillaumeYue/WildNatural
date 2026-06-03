@@ -8,6 +8,7 @@ import productSerumImg from '../assets/product-serum.png'
 import productCleanserImg from '../assets/product-cleanser.png'
 import productCreamImg from '../assets/product-cream.png'
 import { useLang } from '../contexts/LanguageContext'
+import FadeIn from '../components/motion/FadeIn'
 
 /**
  * Product line. Names are brand product names (kept identical across
@@ -58,7 +59,7 @@ function HeroShowcase({ product }) {
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left: copy + buttons */}
-          <div className="max-w-xl">
+          <FadeIn className="max-w-xl">
             <p className="text-xs tracking-[0.3em] uppercase text-rose-500 mb-6 font-semibold">
               {t('products.taglineLabel')}
             </p>
@@ -86,17 +87,17 @@ function HeroShowcase({ product }) {
             <p className="font-display text-3xl font-semibold text-ink">
               ${product.price}.00
             </p>
-          </div>
+          </FadeIn>
 
           {/* Right: product image on blush blob backdrop */}
-          <div className="relative aspect-square max-w-[560px] w-full mx-auto">
+          <FadeIn delay={0.15} className="relative aspect-square max-w-[560px] w-full mx-auto">
             <div className="absolute inset-6 bg-blush-200 rounded-[42%]" />
             <img
               src={product.image}
               alt={product.name}
               className="relative w-full h-full object-contain drop-shadow-2xl p-6"
             />
-          </div>
+          </FadeIn>
         </div>
       </div>
     </section>
@@ -107,11 +108,11 @@ function TaglineStrip() {
   const { t } = useLang()
   return (
     <section className="bg-blush-100 py-16 px-10">
-      <div className="mx-auto max-w-[1400px] text-center">
+      <FadeIn className="mx-auto max-w-[1400px] text-center">
         <h2 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-ink tracking-tight">
           {t('products.handcraftedStrip')}
         </h2>
-      </div>
+      </FadeIn>
     </section>
   )
 }
@@ -187,14 +188,14 @@ function CarouselSection({ products, placeholderCount }) {
   return (
     <section className="bg-white py-20 px-10">
       <div className="mx-auto max-w-[1400px]">
-        <div className="mb-10">
+        <FadeIn className="mb-10">
           <p className="text-xs tracking-[0.3em] uppercase text-rose-500 mb-2 font-semibold">
             {t('products.collectionLabel')}
           </p>
           <h2 className="font-display text-2xl md:text-3xl font-semibold text-ink">
             {t('products.collectionTitle')}
           </h2>
-        </div>
+        </FadeIn>
 
         {/* Carousel: arrows flank the scrollable card row */}
         <div className="flex items-center gap-4">
