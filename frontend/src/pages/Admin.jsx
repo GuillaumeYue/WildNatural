@@ -20,41 +20,42 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import logoWild from '../assets/logo-wild.png'
+import API from '../api/axiosInstance'
 
 const SECTIONS = [
-  { key: 'home',       label: 'Dashboard',          Icon: LayoutDashboard },
-  { key: 'orders',     label: 'Orders',             Icon: Package },
-  { key: 'products',   label: 'Products',           Icon: Boxes },
-  { key: 'inventory',  label: 'Inventory',          Icon: Warehouse },
-  { key: 'customers',  label: 'Customers',          Icon: Users },
-  { key: 'promos',     label: 'Promo Codes',        Icon: Tag },
-  { key: 'customize',  label: 'Customize Requests', Icon: FlaskConical },
-  { key: 'cms',        label: 'Content',            Icon: FileEdit },
-  { key: 'lang',       label: 'Translations',       Icon: Languages },
+  { key: 'home', label: 'Dashboard', Icon: LayoutDashboard },
+  { key: 'orders', label: 'Orders', Icon: Package },
+  { key: 'products', label: 'Products', Icon: Boxes },
+  { key: 'inventory', label: 'Inventory', Icon: Warehouse },
+  { key: 'customers', label: 'Customers', Icon: Users },
+  { key: 'promos', label: 'Promo Codes', Icon: Tag },
+  { key: 'customize', label: 'Customize Requests', Icon: FlaskConical },
+  { key: 'cms', label: 'Content', Icon: FileEdit },
+  { key: 'lang', label: 'Translations', Icon: Languages },
 ]
 
 const SECTION_TITLE = {
-  home:       'Dashboard',
-  orders:     'Orders',
-  products:   'Products',
-  inventory:  'Inventory',
-  customers:  'Customers',
-  promos:     'Promo Codes',
-  customize:  'Customize Requests',
-  cms:        'Site Content',
-  lang:       'Translations',
+  home: 'Dashboard',
+  orders: 'Orders',
+  products: 'Products',
+  inventory: 'Inventory',
+  customers: 'Customers',
+  promos: 'Promo Codes',
+  customize: 'Customize Requests',
+  cms: 'Site Content',
+  lang: 'Translations',
 }
 
 const SECTION_SUB = {
-  home:       'A quick read on today.',
-  orders:     'Process, ship, refund.',
-  products:   'Add or update SKUs.',
-  inventory:  'Stock levels and low-stock alerts.',
-  customers:  'See who is buying.',
-  promos:     'Create and track discount codes.',
-  customize:  'Bespoke skincare requests from the Customize page.',
-  cms:        'Edit homepage copy, banners, and footer.',
-  lang:       'English / French content for Bill 96 compliance.',
+  home: 'A quick read on today.',
+  orders: 'Process, ship, refund.',
+  products: 'Add or update SKUs.',
+  inventory: 'Stock levels and low-stock alerts.',
+  customers: 'See who is buying.',
+  promos: 'Create and track discount codes.',
+  customize: 'Bespoke skincare requests from the Customize page.',
+  cms: 'Edit homepage copy, banners, and footer.',
+  lang: 'English / French content for Bill 96 compliance.',
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -136,10 +137,10 @@ function TableShell({ columns, rows, empty = 'No data yet.' }) {
   )
 }
 
-function ButtonPrimary({ children, icon: Icon, ...rest }) {
+function ButtonPrimary({ children, icon: Icon, type = 'button', ...rest }) {
   return (
     <button
-      type="button"
+      type={type}
       className="bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-xs py-2.5 px-5 rounded-md transition-colors inline-flex items-center gap-2"
       {...rest}
     >
@@ -164,15 +165,15 @@ function ButtonGhost({ children, icon: Icon, ...rest }) {
 
 function StatusPill({ kind, children }) {
   const styles = {
-    paid:      'bg-rose-50 text-rose-500 border-rose-200',
-    shipped:   'bg-blush-100 text-rose-600 border-rose-200',
+    paid: 'bg-rose-50 text-rose-500 border-rose-200',
+    shipped: 'bg-blush-100 text-rose-600 border-rose-200',
     delivered: 'bg-ink/5 text-ink-soft border-ink/10',
     cancelled: 'bg-ink/5 text-ink-muted border-ink/10',
-    active:    'bg-rose-50 text-rose-500 border-rose-200',
-    paused:    'bg-ink/5 text-ink-muted border-ink/10',
-    new:       'bg-rose-50 text-rose-500 border-rose-200',
-    progress:  'bg-blush-100 text-rose-600 border-rose-200',
-    done:      'bg-ink/5 text-ink-soft border-ink/10',
+    active: 'bg-rose-50 text-rose-500 border-rose-200',
+    paused: 'bg-ink/5 text-ink-muted border-ink/10',
+    new: 'bg-rose-50 text-rose-500 border-rose-200',
+    progress: 'bg-blush-100 text-rose-600 border-rose-200',
+    done: 'bg-ink/5 text-ink-soft border-ink/10',
   }
   return (
     <span
@@ -295,55 +296,270 @@ function AdminOrders() {
 //  3 · Products
 // ─────────────────────────────────────────────────────────────
 function AdminProducts() {
+  const [products, setProducts] = useState([])
+  const [form, setForm] = useState({
+    name: '',
+    price: '',
+    description: '',
+    image: '',
+    brand: '',
+    category: '',
+    countInStock: '',
+  })
+  const [editingId, setEditingId] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+
+  const emptyForm = {
+    name: '',
+    price: '',
+    description: '',
+    image: '',
+    brand: '',
+    category: '',
+    countInStock: '',
+  }
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true)
+      setError('')
+
+      const { data } = await API.get('/products')
+      setProducts(data)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch products')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setMessage('')
+    setError('')
+
+    try {
+      const productData = {
+        name: form.name,
+        price: Number(form.price),
+        description: form.description,
+        image: form.image,
+        brand: form.brand,
+        category: form.category,
+        countInStock: Number(form.countInStock),
+      }
+
+      if (editingId) {
+        await API.put(`/products/${editingId}`, productData)
+        setMessage('Product updated successfully')
+      } else {
+        await API.post('/products', productData)
+        setMessage('Product added successfully')
+      }
+
+      setForm(emptyForm)
+      setEditingId(null)
+      fetchProducts()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to save product')
+    }
+  }
+
+  const handleEdit = (product) => {
+    setEditingId(product._id)
+    setMessage('')
+    setError('')
+
+    setForm({
+      name: product.name || '',
+      price: product.price || '',
+      description: product.description || '',
+      image: product.image || '',
+      brand: product.brand || '',
+      category: product.category || '',
+      countInStock: product.countInStock || '',
+    })
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleCancelEdit = () => {
+    setEditingId(null)
+    setForm(emptyForm)
+    setMessage('')
+    setError('')
+  }
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm('Delete this product?')
+
+    if (!confirmDelete) return
+
+    try {
+      setMessage('')
+      setError('')
+
+      await API.delete(`/products/${id}`)
+      setMessage('Product deleted successfully')
+      fetchProducts()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete product')
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Search className="w-4 h-4 text-ink-muted" />
+      <Card className="p-6">
+        <h3 className="font-display text-xl font-semibold text-ink mb-4">
+          {editingId ? 'Edit Product' : 'Add Product'}
+        </h3>
+
+        {message && (
+          <p className="mb-4 text-sm text-green-600 font-medium">
+            {message}
+          </p>
+        )}
+
+        {error && (
+          <p className="mb-4 text-sm text-rose-500 font-medium">
+            {error}
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-4">
           <input
-            placeholder="Search products"
-            className="border border-ink/15 rounded-md px-3 py-2 text-sm outline-none focus:border-rose-500 w-64"
+            name="name"
+            placeholder="Name"
+            value={form.name}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded"
+            required
           />
-        </div>
-        <ButtonPrimary icon={Plus}>Add product</ButtonPrimary>
-      </div>
+
+          <input
+            name="price"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Price"
+            value={form.price}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded"
+            required
+          />
+
+          <input
+            name="image"
+            placeholder="Image URL"
+            value={form.image}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded"
+            required
+          />
+
+          <input
+            name="brand"
+            placeholder="Brand"
+            value={form.brand}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded"
+            required
+          />
+
+          <input
+            name="category"
+            placeholder="Category"
+            value={form.category}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded"
+            required
+          />
+
+          <input
+            name="countInStock"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="Stock"
+            value={form.countInStock}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded"
+            required
+          />
+
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={form.description}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded md:col-span-2"
+            required
+          />
+
+          <div className="md:col-span-2 flex gap-3">
+            <button
+              type="submit"
+              className="bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-xs py-2.5 px-5 rounded-md transition-colors"
+            >
+              {editingId ? 'Update Product' : 'Add Product'}
+            </button>
+
+            {editingId && (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="border border-ink/20 hover:border-rose-500 hover:text-rose-500 text-ink-soft font-medium text-sm py-2 px-4 rounded-md transition-colors"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        </form>
+      </Card>
 
       <Card className="p-6">
-        <TableShell
-          columns={['Product', 'Price', 'Stock', 'Status', 'Actions']}
-          rows={[
-            [
-              <span key="n" className="font-medium text-ink">WILD Botanical Serum</span>,
-              '$48.00',
-              <span key="s" className="text-ink">24</span>,
-              <StatusPill key="p" kind="active">Active</StatusPill>,
-              <div key="a" className="flex gap-2">
-                <ButtonGhost icon={Edit3}>Edit</ButtonGhost>
-                <button className="text-ink-muted hover:text-rose-500"><Trash2 className="w-4 h-4" /></button>
+        {loading ? (
+          <p className="text-ink-muted text-sm">Loading products...</p>
+        ) : (
+          <TableShell
+            columns={['Product', 'Price', 'Stock', 'Category', 'Actions']}
+            rows={products.map((product) => [
+              product.name,
+              `$${product.price}`,
+              product.countInStock,
+              product.category,
+              <div key={product._id} className="flex gap-2">
+                <ButtonGhost onClick={() => handleEdit(product)}>
+                  Edit
+                </ButtonGhost>
+
+                <button
+                  type="button"
+                  onClick={() => handleDelete(product._id)}
+                  className="text-ink-muted hover:text-rose-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>,
-            ],
-            [
-              'WILD Hydrating Cleanser',
-              '$34.00',
-              <span key="s" className="text-rose-500 font-medium">3 (low)</span>,
-              <StatusPill key="p" kind="active">Active</StatusPill>,
-              <div key="a" className="flex gap-2">
-                <ButtonGhost icon={Edit3}>Edit</ButtonGhost>
-                <button className="text-ink-muted hover:text-rose-500"><Trash2 className="w-4 h-4" /></button>
-              </div>,
-            ],
-            [
-              'WILD Renewal Cream',
-              '$52.00',
-              <span key="s" className="text-ink">12</span>,
-              <StatusPill key="p" kind="paused">Hidden</StatusPill>,
-              <div key="a" className="flex gap-2">
-                <ButtonGhost icon={Edit3}>Edit</ButtonGhost>
-                <button className="text-ink-muted hover:text-rose-500"><Trash2 className="w-4 h-4" /></button>
-              </div>,
-            ],
-          ]}
-        />
+            ])}
+            empty="No products found."
+          />
+        )}
       </Card>
     </div>
   )
@@ -489,9 +705,9 @@ function AdminPromos() {
 function AdminCustomize() {
   const [tab, setTab] = useState('new')
   const tabs = [
-    { key: 'new',      label: 'New' },
+    { key: 'new', label: 'New' },
     { key: 'progress', label: 'In Progress' },
-    { key: 'done',     label: 'Completed' },
+    { key: 'done', label: 'Completed' },
   ]
   return (
     <div className="space-y-6">
@@ -500,11 +716,10 @@ function AdminCustomize() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium transition-colors -mb-px border-b-2 ${
-              tab === t.key
-                ? 'border-rose-500 text-rose-500'
-                : 'border-transparent text-ink-muted hover:text-ink'
-            }`}
+            className={`px-4 py-2 text-sm font-medium transition-colors -mb-px border-b-2 ${tab === t.key
+              ? 'border-rose-500 text-rose-500'
+              : 'border-transparent text-ink-muted hover:text-ink'
+              }`}
           >
             {t.label}
           </button>
@@ -527,14 +742,14 @@ function AdminCustomize() {
 // ─────────────────────────────────────────────────────────────
 function AdminCMS() {
   const blocks = [
-    { key: 'home-hero',    label: 'Homepage hero',          path: '/home',     desc: 'Headline + subtitle + SHOP NOW button' },
-    { key: 'home-whyus',   label: 'Why Us features',        path: '/home',     desc: 'Three feature labels and icons' },
-    { key: 'about-story',  label: 'About — Heritage',       path: '/about',    desc: 'Founder story paragraphs' },
-    { key: 'about-promise',label: 'About — Our Promise',    path: '/about',    desc: 'Three values copy' },
-    { key: 'about-incl',   label: 'About — Inclusion band', path: '/about',    desc: 'Closing band tagline' },
-    { key: 'products-line',label: 'Products — Tagline',     path: '/products', desc: '"HANDCRAFTED WITH CARE" strip' },
-    { key: 'banner',       label: 'Site-wide banner',       path: 'all',       desc: 'Optional announcement strip across all pages' },
-    { key: 'footer',       label: 'Footer columns',         path: 'all',       desc: 'Column titles and links' },
+    { key: 'home-hero', label: 'Homepage hero', path: '/home', desc: 'Headline + subtitle + SHOP NOW button' },
+    { key: 'home-whyus', label: 'Why Us features', path: '/home', desc: 'Three feature labels and icons' },
+    { key: 'about-story', label: 'About — Heritage', path: '/about', desc: 'Founder story paragraphs' },
+    { key: 'about-promise', label: 'About — Our Promise', path: '/about', desc: 'Three values copy' },
+    { key: 'about-incl', label: 'About — Inclusion band', path: '/about', desc: 'Closing band tagline' },
+    { key: 'products-line', label: 'Products — Tagline', path: '/products', desc: '"HANDCRAFTED WITH CARE" strip' },
+    { key: 'banner', label: 'Site-wide banner', path: 'all', desc: 'Optional announcement strip across all pages' },
+    { key: 'footer', label: 'Footer columns', path: 'all', desc: 'Column titles and links' },
   ]
   return (
     <div className="space-y-3">
@@ -579,11 +794,11 @@ function AdminTranslations() {
         <TableShell
           columns={['Key', 'English', 'French', 'Status']}
           rows={[
-            ['nav.home',         'Home',         <span key="f" className="text-rose-500 italic">Missing</span>, <StatusPill key="s" kind="paused">Empty</StatusPill>],
-            ['nav.about',        'About Us',     <span key="f" className="text-rose-500 italic">Missing</span>, <StatusPill key="s" kind="paused">Empty</StatusPill>],
-            ['nav.products',     'Products',     <span key="f" className="text-rose-500 italic">Missing</span>, <StatusPill key="s" kind="paused">Empty</StatusPill>],
+            ['nav.home', 'Home', <span key="f" className="text-rose-500 italic">Missing</span>, <StatusPill key="s" kind="paused">Empty</StatusPill>],
+            ['nav.about', 'About Us', <span key="f" className="text-rose-500 italic">Missing</span>, <StatusPill key="s" kind="paused">Empty</StatusPill>],
+            ['nav.products', 'Products', <span key="f" className="text-rose-500 italic">Missing</span>, <StatusPill key="s" kind="paused">Empty</StatusPill>],
             ['welcome.headline', 'Step into something naturally yours.', <span key="f" className="text-rose-500 italic">Missing</span>, <StatusPill key="s" kind="paused">Empty</StatusPill>],
-            ['button.signin',    'Sign In',      <span key="f" className="text-rose-500 italic">Missing</span>, <StatusPill key="s" kind="paused">Empty</StatusPill>],
+            ['button.signin', 'Sign In', <span key="f" className="text-rose-500 italic">Missing</span>, <StatusPill key="s" kind="paused">Empty</StatusPill>],
           ]}
         />
       </Card>
@@ -634,11 +849,10 @@ export default function Admin() {
               <button
                 key={key}
                 onClick={() => setSection(key)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors mb-0.5 ${
-                  active
-                    ? 'bg-blush-100 text-rose-500'
-                    : 'text-ink-soft hover:bg-blush-50 hover:text-ink'
-                }`}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors mb-0.5 ${active
+                  ? 'bg-blush-100 text-rose-500'
+                  : 'text-ink-soft hover:bg-blush-50 hover:text-ink'
+                  }`}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.8} />
                 {label}
@@ -680,15 +894,15 @@ export default function Admin() {
           <p className="text-ink-muted text-sm">{SECTION_SUB[section]}</p>
         </header>
 
-        {section === 'home'       && <AdminHome />}
-        {section === 'orders'     && <AdminOrders />}
-        {section === 'products'   && <AdminProducts />}
-        {section === 'inventory'  && <AdminInventory />}
-        {section === 'customers'  && <AdminCustomers />}
-        {section === 'promos'     && <AdminPromos />}
-        {section === 'customize'  && <AdminCustomize />}
-        {section === 'cms'        && <AdminCMS />}
-        {section === 'lang'       && <AdminTranslations />}
+        {section === 'home' && <AdminHome />}
+        {section === 'orders' && <AdminOrders />}
+        {section === 'products' && <AdminProducts />}
+        {section === 'inventory' && <AdminInventory />}
+        {section === 'customers' && <AdminCustomers />}
+        {section === 'promos' && <AdminPromos />}
+        {section === 'customize' && <AdminCustomize />}
+        {section === 'cms' && <AdminCMS />}
+        {section === 'lang' && <AdminTranslations />}
       </main>
     </div>
   )
