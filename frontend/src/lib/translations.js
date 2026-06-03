@@ -151,13 +151,19 @@ export const translations = {
     'about.heroTagline':        'Clean skincare, crafted with intention. We make products that honor your skin and the world it lives in.',
     'about.heritageLabel':      'Heritage',
     'about.heritageTitle':      'A quiet beginning.',
+    'about.heritageBody1':      'WILD Natural began at a kitchen table — small batches, careful hands, and a refusal to compromise on what touches your skin.',
+    'about.heritageBody2':      'Today our team formulates every product with the same intention: ingredients you can pronounce, results you can see, and a story you can stand behind.',
     'about.promiseLabel':       'Our Promise',
     'about.promiseTitle':       'Beauty that respects.',
     'about.value.natural':      'Naturally Sourced',
+    'about.value.naturalBody':  'Plant-led ingredients chosen for what they do, not how they sound.',
     'about.value.cruelty':      'Cruelty-Free',
+    'about.value.crueltyBody':  'Never tested on animals — formulated, refined, and trusted by humans.',
     'about.value.eco':          'Eco-Conscious Packaging',
+    'about.value.ecoBody':      'Recycled and recyclable materials, designed for a smaller footprint.',
     'about.inclusionLabel':     'Diversity & Inclusion',
     'about.inclusionTitle':     'Beauty for everyone.',
+    'about.inclusionBody':      'Beauty is a form of self-expression, and should be inclusive of every culture and tradition. Our products are made for every skin, every story, every ritual.',
 
     // ──── Products ────
     'products.crumb':           'Home / Products',
@@ -170,6 +176,10 @@ export const translations = {
     'products.comingSoon':      'Coming Soon',
     'products.future':          'Future Product',
     'products.watchSpace':      'Watch this space.',
+    'products.featuredDesc':    'Handcrafted with the freshest natural ingredients, our debut serum is designed to nourish, hydrate, and bring out your natural glow.',
+    'products.serumDesc':       'Nourish, Hydrate, Illuminate – 30ml.',
+    'products.cleanserDesc':    'Pure Bliss, Daily Cleanse – 50ml.',
+    'products.creamDesc':       'Brighten, Nourish, Transform – 15ml.',
 
     // ──── Profile ────
     'profile.crumb':            'Home / My Account',
@@ -329,13 +339,19 @@ export const translations = {
     'about.heroTagline':        'Des soins propres, créés avec intention. Nous fabriquons des produits qui respectent votre peau et le monde qui l’entoure.',
     'about.heritageLabel':      'Héritage',
     'about.heritageTitle':      'Un commencement discret.',
+    'about.heritageBody1':      'WILD Natural a vu le jour sur une table de cuisine — de petits lots, des mains attentives et le refus de tout compromis sur ce qui touche votre peau.',
+    'about.heritageBody2':      'Aujourd’hui, notre équipe formule chaque produit avec la même intention : des ingrédients que vous pouvez prononcer, des résultats visibles et une histoire à laquelle vous pouvez croire.',
     'about.promiseLabel':       'Notre promesse',
     'about.promiseTitle':       'Une beauté qui respecte.',
     'about.value.natural':      'Sources naturelles',
+    'about.value.naturalBody':  'Des ingrédients d’origine végétale choisis pour ce qu’ils font, et non pour leur nom.',
     'about.value.cruelty':      'Sans cruauté',
+    'about.value.crueltyBody':  'Jamais testé sur les animaux — formulé, perfectionné et approuvé par des humains.',
     'about.value.eco':          'Emballage écoresponsable',
+    'about.value.ecoBody':      'Des matériaux recyclés et recyclables, conçus pour une empreinte réduite.',
     'about.inclusionLabel':     'Diversité et inclusion',
     'about.inclusionTitle':     'La beauté pour tous.',
+    'about.inclusionBody':      'La beauté est une forme d’expression de soi et devrait inclure toutes les cultures et traditions. Nos produits sont faits pour toutes les peaux, toutes les histoires, tous les rituels.',
 
     // ──── Products ────
     'products.crumb':           'Accueil / Produits',
@@ -348,6 +364,10 @@ export const translations = {
     'products.comingSoon':      'À venir',
     'products.future':          'Produit à venir',
     'products.watchSpace':      'Restez à l’affût.',
+    'products.featuredDesc':    'Fait à la main avec les ingrédients les plus frais, notre tout premier sérum nourrit, hydrate et révèle l’éclat naturel de votre peau.',
+    'products.serumDesc':       'Nourrir, hydrater, illuminer – 30 ml.',
+    'products.cleanserDesc':    'Pur bonheur, nettoyage quotidien – 50 ml.',
+    'products.creamDesc':       'Éclaircir, nourrir, transformer – 15 ml.',
 
     // ──── Profile ────
     'profile.crumb':            'Accueil / Mon compte',

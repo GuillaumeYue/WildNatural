@@ -2,10 +2,12 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 import { Check } from 'lucide-react'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
+import { useLang } from '../contexts/LanguageContext'
 
 export default function OrderConfirmation() {
   const location = useLocation()
   const order = location.state?.order
+  const { t } = useLang()
 
   // Hard refresh / direct visit → no order data, send back home.
   if (!order) {
@@ -23,23 +25,22 @@ export default function OrderConfirmation() {
           </div>
 
           <h1 className="font-display text-4xl md:text-5xl font-semibold text-ink mb-4">
-            Thank you for your order
+            {t('orderConf.thanks')}
           </h1>
           <p className="text-lg text-ink-soft mb-12 leading-relaxed">
-            We've received your order and will start preparing it shortly.
-            A confirmation email is on the way.
+            {t('orderConf.subtitle')}
           </p>
 
           <section className="bg-blush-50 p-8 rounded-md text-left mb-12">
             <p className="text-[11px] tracking-[0.3em] uppercase text-rose-500 font-semibold mb-2">
-              Order Number
+              {t('orderConf.orderNumber')}
             </p>
             <p className="font-mono text-sm text-ink-soft mb-8 break-all">
               {order._id}
             </p>
 
             <h2 className="font-display text-xl font-semibold text-ink mb-4">
-              Items
+              {t('orderConf.items')}
             </h2>
             <ul className="space-y-3 mb-6">
               {order.orderItems?.map((item, i) => (
@@ -59,11 +60,11 @@ export default function OrderConfirmation() {
             </ul>
 
             <div className="border-t border-ink/10 pt-4 space-y-2 text-sm">
-              <Row label="Subtotal" value={order.itemsPrice} />
-              <Row label="Shipping" value={order.shippingPrice} />
-              <Row label="Tax" value={order.taxPrice} />
+              <Row label={t('cart.subtotal')} value={order.itemsPrice} />
+              <Row label={t('checkout.shipping')} value={order.shippingPrice} />
+              <Row label={t('cart.tax')} value={order.taxPrice} />
               <div className="flex justify-between pt-4 border-t border-ink/10 mt-3 font-semibold text-base">
-                <span className="text-ink">Total</span>
+                <span className="text-ink">{t('cart.total')}</span>
                 <span className="text-ink">
                   ${order.totalPrice?.toFixed(2) ?? '—'}
                 </span>
@@ -73,7 +74,7 @@ export default function OrderConfirmation() {
             {order.shippingAddress && (
               <div className="mt-8 pt-6 border-t border-ink/10">
                 <p className="text-[11px] tracking-[0.3em] uppercase text-rose-500 font-semibold mb-3">
-                  Shipping To
+                  {t('orderConf.shippingTo')}
                 </p>
                 <p className="text-sm text-ink-soft leading-relaxed">
                   {order.shippingAddress.address}
@@ -91,7 +92,7 @@ export default function OrderConfirmation() {
             to="/products"
             className="inline-block bg-rose-500 hover:bg-rose-600 text-cream font-bold tracking-[0.2em] uppercase text-sm py-4 px-10 rounded-md transition-colors"
           >
-            Continue Shopping
+            {t('orderConf.continue')}
           </Link>
         </div>
       </main>

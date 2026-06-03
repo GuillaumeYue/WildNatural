@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Nav from '../components/Nav'
 import Footer from '../components/Footer'
+import { useLang } from '../contexts/LanguageContext'
 
 const INGREDIENTS = [
   'Rosemary',
@@ -11,6 +12,7 @@ const INGREDIENTS = [
 ]
 
 export default function Customize() {
+  const { t } = useLang()
   const [selectedIngredients, setSelectedIngredients] = useState([])
 
   const toggleIngredient = (ingredient) => {
@@ -33,16 +35,15 @@ export default function Customize() {
           {/* HEADER */}
 
           <p className="text-xs tracking-[0.3em] uppercase text-ink-muted mb-4">
-            Home / Customize
+            {t('customize.crumb')}
           </p>
 
           <h1 className="font-display text-5xl md:text-6xl font-semibold text-ink mb-8">
-            Personalized Skincare
+            {t('customize.title')}
           </h1>
 
           <p className="max-w-3xl text-lg text-ink-soft leading-relaxed mb-16">
-            Request a fully customized skincare experience tailored to your
-            ingredients, preferences, and skin concerns.
+            {t('customize.intro')}
           </p>
 
           {/* FORM */}
@@ -55,7 +56,7 @@ export default function Customize() {
 
               <div>
                 <label className="block text-sm tracking-[0.15em] uppercase text-rose-500 font-semibold mb-4">
-                  Email Address
+                  {t('customize.emailLabel')}
                 </label>
 
                 <input
@@ -69,7 +70,7 @@ export default function Customize() {
 
               <div>
                 <label className="block text-sm tracking-[0.15em] uppercase text-rose-500 font-semibold mb-5">
-                  Ingredients That Interest You
+                  {t('customize.ingredients')}
                 </label>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -97,7 +98,7 @@ export default function Customize() {
 
               <div>
                 <label className="block text-sm tracking-[0.15em] uppercase text-rose-500 font-semibold mb-4">
-                  Skin Needs
+                  {t('customize.skinNeeds')}
                 </label>
 
                 <textarea
@@ -111,7 +112,7 @@ export default function Customize() {
 
               <div>
                 <label className="block text-sm tracking-[0.15em] uppercase text-rose-500 font-semibold mb-4">
-                  Consultation Option
+                  {t('customize.consultation')}
                 </label>
 
                 <select className="w-full border border-ink/10 bg-white px-5 py-4 rounded-md outline-none focus:border-rose-500">
@@ -124,7 +125,7 @@ export default function Customize() {
 
               <div className="border border-rose-200 bg-white p-6 rounded-md">
                 <h3 className="font-display text-2xl text-ink mb-4">
-                  Appointment & Payment Policy
+                  {t('customize.policy')}
                 </h3>
 
                 <ul className="space-y-3 text-ink-soft leading-relaxed text-sm">
@@ -160,7 +161,7 @@ export default function Customize() {
                 type="submit"
                 className="bg-rose-500 hover:bg-rose-600 transition-colors text-white px-14 py-5 rounded-md tracking-[0.2em] text-sm font-bold"
               >
-                SUBMIT REQUEST
+                {t('customize.submit')}
               </button>
 
             </form>

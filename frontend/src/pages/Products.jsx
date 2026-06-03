@@ -5,15 +5,22 @@ import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import API from '../api/axiosInstance'
 import heroProductImg from '../assets/hero-product.png'
+import { useLang } from '../contexts/LanguageContext'
 
 const FALLBACK_FEATURED_PRODUCT = {
   _id: 'featured-product',
   name: 'WILD Botanical Serum',
-  tagline: 'Meet Our First Creation',
+  descKey: 'products.featuredDesc',
   description:
     'Handcrafted with the freshest natural ingredients, our debut serum is designed to nourish, hydrate, and bring out your natural glow.',
   price: 48,
   image: heroProductImg,
+  countInStock: 1,
+}
+
+function getProductDescription(product, t) {
+  if (product.descKey) return t(product.descKey)
+  return product.description || ''
 }
 
 function addToCart(product, navigate) {
@@ -21,6 +28,16 @@ function addToCart(product, navigate) {
     JSON.parse(sessionStorage.getItem('wild.checkoutItems')) || []
 
   const existingItem = existingItems.find((item) => item.id === product._id)
+
+  if (product.countInStock === 0) {
+    alert('This product is out of stock')
+    return
+  }
+
+  if (existingItem && existingItem.qty >= product.countInStock) {
+    alert(`Only ${product.countInStock} item(s) available in stock`)
+    return
+  }
 
   let updatedItems
 
@@ -47,43 +64,59 @@ function addToCart(product, navigate) {
 }
 
 function HeroShowcase({ product }) {
+  const { t } = useLang()
   const navigate = useNavigate()
 
   return (
     <section className="bg-blush-50 pt-32 pb-20 px-10">
       <div className="mx-auto max-w-[1400px]">
         <p className="text-xs tracking-[0.3em] uppercase text-ink-muted mb-12">
-          Home / Products
+          {t('products.crumb')}
         </p>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="max-w-xl">
             <p className="text-xs tracking-[0.3em] uppercase text-rose-500 mb-6 font-semibold">
-              {product.tagline || 'Featured Product'}
+              {t('products.taglineLabel')}
             </p>
 
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold text-ink mb-8 leading-[1.05]">
               {product.name}
             </h1>
 
-            <p className="text-lg text-ink-soft leading-relaxed mb-10">
-              {product.description}
+            <p className="text-lg text-ink-soft leading-relaxed mb-6">
+              {getProductDescription(product, t)}
             </p>
+
+            {product.countInStock <= 5 && product.countInStock > 0 && (
+              <p className="text-sm text-rose-500 font-medium mb-4">
+                Only {product.countInStock} left in stock
+              </p>
+            )}
+
+            {product.countInStock === 0 && (
+              <p className="text-sm text-ink-muted font-medium mb-4">
+                Out of stock
+              </p>
+            )}
 
             <div className="flex items-center gap-4 flex-wrap mb-8">
               <button
                 type="button"
+                disabled={product.countInStock === 0}
                 onClick={() => addToCart(product, navigate)}
-                className="rounded-md bg-rose-500 px-10 py-4 text-sm font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600"
+                className="rounded-md bg-rose-500 px-10 py-4 text-sm font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                SHOP NOW
+                {product.countInStock === 0
+                  ? 'OUT OF STOCK'
+                  : t('products.shopNow')}
               </button>
 
               <Link
                 to="/about"
                 className="rounded-md border-2 border-ink/20 px-10 py-4 text-sm font-bold tracking-[0.2em] text-ink transition-colors hover:border-rose-500 hover:text-rose-500"
               >
-                LEARN MORE
+                {t('products.learnMore')}
               </Link>
             </div>
 
@@ -107,11 +140,13 @@ function HeroShowcase({ product }) {
 }
 
 function TaglineStrip() {
+  const { t } = useLang()
+
   return (
     <section className="bg-blush-100 py-16 px-10">
       <div className="mx-auto max-w-[1400px] text-center">
         <h2 className="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-ink tracking-tight">
-          HANDCRAFTED WITH CARE
+          {t('products.handcraftedStrip')}
         </h2>
       </div>
     </section>
@@ -119,6 +154,7 @@ function TaglineStrip() {
 }
 
 function ProductCard({ product }) {
+  const { t } = useLang()
   const navigate = useNavigate()
 
   return (
@@ -136,8 +172,20 @@ function ProductCard({ product }) {
       </h3>
 
       <p className="text-sm text-ink-soft mb-3 leading-relaxed">
-        {product.description}
+        {getProductDescription(product, t)}
       </p>
+
+      {product.countInStock <= 5 && product.countInStock > 0 && (
+        <p className="text-xs text-rose-500 font-medium mb-3">
+          Only {product.countInStock} left in stock
+        </p>
+      )}
+
+      {product.countInStock === 0 && (
+        <p className="text-xs text-ink-muted font-medium mb-3">
+          Out of stock
+        </p>
+      )}
 
       <p className="font-medium text-ink mb-4">
         ${Number(product.price).toFixed(2)}
@@ -145,10 +193,11 @@ function ProductCard({ product }) {
 
       <button
         type="button"
+        disabled={product.countInStock === 0}
         onClick={() => addToCart(product, navigate)}
-        className="rounded-md bg-rose-500 px-5 py-3 text-xs font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600"
+        className="rounded-md bg-rose-500 px-5 py-3 text-xs font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        ADD TO CART
+        {product.countInStock === 0 ? 'OUT OF STOCK' : 'ADD TO CART'}
       </button>
     </article>
   )
@@ -170,6 +219,7 @@ function ArrowButton({ direction, onClick }) {
 }
 
 function ProductSection({ products }) {
+  const { t } = useLang()
   const scrollRef = useRef(null)
   const shouldCarousel = products.length > 4
 
@@ -187,11 +237,11 @@ function ProductSection({ products }) {
       <div className="mx-auto max-w-[1400px]">
         <div className="mb-10">
           <p className="text-xs tracking-[0.3em] uppercase text-rose-500 mb-2 font-semibold">
-            Our Collection
+            {t('products.collectionLabel')}
           </p>
 
           <h2 className="font-display text-2xl md:text-3xl font-semibold text-ink">
-            Browse our line
+            {t('products.collectionTitle')}
           </h2>
         </div>
 
@@ -249,7 +299,7 @@ export default function Products() {
         if (data.length > 0) {
           setFeaturedProduct({
             ...data[0],
-            tagline: 'Meet Our First Creation',
+            descKey: data[0].descKey,
           })
         }
       } catch (err) {
