@@ -17,7 +17,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const userRoutes = require('./routes/userRoutes');
 const adminDashboardRoutes = require('./routes/adminDashboardRoutes');
 const promoCodeRoutes = require('./routes/promoCodeRoutes');
-
+const customizationRoutes = require('./routes/customizationRoutes');
 // Initialization
 connectDB();
 
@@ -42,7 +42,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin/dashboard', adminDashboardRoutes);
 app.use('/api/promocodes', promoCodeRoutes);
-
+app.use('/api/customizations', customizationRoutes);
 
 
 // Health Check Route

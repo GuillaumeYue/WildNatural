@@ -11,8 +11,10 @@ const {
 
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 
+// Public/front-end form submit
 router.post('/', createCustomization);
 
+// Admin routes
 router.get('/admin', protect, adminOnly, getAllCustomizations);
 
 router

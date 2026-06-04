@@ -1068,11 +1068,57 @@ function AdminPromos() {
 // ─────────────────────────────────────────────────────────────
 function AdminCustomize() {
   const [tab, setTab] = useState('new')
+  const [requests, setRequests] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
   const tabs = [
     { key: 'new', label: 'New' },
     { key: 'progress', label: 'In Progress' },
     { key: 'done', label: 'Completed' },
+    { key: 'cancelled', label: 'Cancelled' },
   ]
+
+  const fetchRequests = async () => {
+    try {
+      setLoading(true)
+      setError('')
+
+      const { data } = await API.get('/customizations/admin')
+      setRequests(data)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch customization requests')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchRequests()
+  }, [])
+
+  const updateStatus = async (id, status) => {
+    try {
+      await API.put(`/customizations/${id}/status`, { status })
+      fetchRequests()
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update status')
+    }
+  }
+
+  const deleteRequest = async (id) => {
+    if (!window.confirm('Delete this customization request?')) return
+
+    try {
+      await API.delete(`/customizations/${id}`)
+      fetchRequests()
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete request')
+    }
+  }
+
+  const filteredRequests = requests.filter((request) => request.status === tab)
+
   return (
     <div className="space-y-6">
       <div className="flex gap-1 border-b border-ink/10">
@@ -1080,22 +1126,90 @@ function AdminCustomize() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium transition-colors -mb-px border-b-2 ${tab === t.key
-              ? 'border-rose-500 text-rose-500'
-              : 'border-transparent text-ink-muted hover:text-ink'
-              }`}
+            className={`px-4 py-2 text-sm font-medium transition-colors -mb-px border-b-2 ${
+              tab === t.key
+                ? 'border-rose-500 text-rose-500'
+                : 'border-transparent text-ink-muted hover:text-ink'
+            }`}
           >
             {t.label}
           </button>
         ))}
       </div>
 
+      {error && (
+        <p className="text-sm text-rose-500 font-medium">{error}</p>
+      )}
+
       <Card className="p-6">
-        <TableShell
-          columns={['Email', 'Ingredients', 'Service', 'Deposit', 'Status', 'Actions']}
-          rows={[]}
-          empty="Customize requests will appear here once the form submits to the backend."
-        />
+        {loading ? (
+          <p className="text-ink-muted text-sm">Loading customization requests...</p>
+        ) : (
+          <TableShell
+            columns={[
+              'Client',
+              'Email',
+              'Phone',
+              'Ingredients',
+              'Dates',
+              'Allergies',
+              'Status',
+              'Actions',
+            ]}
+            rows={filteredRequests.map((request) => [
+              request.fullName,
+              request.email,
+              request.phoneNumber,
+              request.ingredients?.join(', ') || '—',
+              request.preferredDates?.join(', ') || '—',
+              request.hasAllergies === 'yes'
+                ? request.allergyDescription || 'Yes'
+                : 'No',
+              <StatusPill
+                key="status"
+                kind={
+                  request.status === 'new'
+                    ? 'new'
+                    : request.status === 'progress'
+                      ? 'progress'
+                      : request.status === 'done'
+                        ? 'done'
+                        : 'cancelled'
+                }
+              >
+                {request.status}
+              </StatusPill>,
+              <div key="actions" className="flex flex-wrap gap-2">
+                {request.status !== 'progress' && (
+                  <ButtonGhost onClick={() => updateStatus(request._id, 'progress')}>
+                    Progress
+                  </ButtonGhost>
+                )}
+
+                {request.status !== 'done' && (
+                  <ButtonGhost onClick={() => updateStatus(request._id, 'done')}>
+                    Done
+                  </ButtonGhost>
+                )}
+
+                {request.status !== 'cancelled' && (
+                  <ButtonGhost onClick={() => updateStatus(request._id, 'cancelled')}>
+                    Cancel
+                  </ButtonGhost>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => deleteRequest(request._id)}
+                  className="text-ink-muted hover:text-rose-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>,
+            ])}
+            empty="No customization requests found."
+          />
+        )}
       </Card>
     </div>
   )
