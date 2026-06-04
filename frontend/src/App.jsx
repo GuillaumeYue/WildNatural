@@ -12,6 +12,7 @@ import Checkout from './pages/Checkout'
 import OrderConfirmation from './pages/OrderConfirmation'
 import Profile from './pages/Profile'
 import Admin from './pages/Admin'
+import Contact from './pages/Contact'
 
 /**
  * Routes wrapped in a cross-fade. The wrapper animates opacity only
@@ -37,6 +38,7 @@ function AnimatedRoutes() {
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/customize" element={<Customize />} />
