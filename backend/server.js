@@ -16,6 +16,8 @@ const cartRoutes = require('./routes/cartRoutes');
 //const stripeRoutes = require('./routes/stripeRoutes');
 const userRoutes = require('./routes/userRoutes');
 const adminDashboardRoutes = require('./routes/adminDashboardRoutes');
+const promoCodeRoutes = require('./routes/promoCodeRoutes');
+
 // Initialization
 connectDB();
 
@@ -39,6 +41,8 @@ app.use('/api/cart', cartRoutes);
 ///app.use('/api/stripe', stripeRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin/dashboard', adminDashboardRoutes);
+app.use('/api/promocodes', promoCodeRoutes);
+
 
 
 // Health Check Route
