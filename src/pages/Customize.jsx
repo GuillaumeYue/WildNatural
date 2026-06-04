@@ -35,6 +35,7 @@ export default function Customize() {
   const [showTimeSlots, setShowTimeSlots] = useState(false)
   const [hasAllergies, setHasAllergies] = useState('')
   const [allergyDescription, setAllergyDescription] = useState('')
+  const [skinNeeds, setSkinNeeds] = useState('')
 
   const inputStyle =
     'w-full border border-ink/10 bg-white px-5 py-4 outline-none focus:border-rose-500 rounded-md'
@@ -139,10 +140,14 @@ export default function Customize() {
       return
     }
 
-    if (selectedTimes.length < 3) {
-      alert('Please select at least 3 preferred appointment times.')
-      return
-    }
+  const allDatesHaveThreeTimes = selectedTimes.every(
+  (times) => times.length === 3
+)
+
+if (!allDatesHaveThreeTimes) {
+  alert('Please select exactly 3 time slots for each date.')
+  return
+}
 
     const finalIngredients = selectedIngredients.includes('Other')
       ? [...selectedIngredients.filter((item) => item !== 'Other'), otherIngredient]
@@ -381,32 +386,51 @@ export default function Customize() {
     Choose 3 Preferred Weekend Dates and Times
   </p>
 
-  <div className="space-y-4">
+  <div className="space-y-3">
     {[0, 1, 2].map((index) => (
       <div key={index} className="border border-rose-100 rounded-xl p-4 bg-white">
-        <input
-          type="date"
-          required
-          min={getMinimumDate()}
-          max={getMaximumDate()}
-          value={selectedDates[index]}
-          onChange={(e) => handleDateChange(index, e.target.value)}
-          className={inputStyle}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-3 items-center">
+          <input
+            type="date"
+            required
+            min={getMinimumDate()}
+            max={getMaximumDate()}
+            value={selectedDates[index]}
+            onChange={(e) => handleDateChange(index, e.target.value)}
+            className="w-full border border-ink/10 bg-white px-4 py-3 outline-none focus:border-rose-500 rounded-md"
+          />
 
-        <details className="mt-3">
-          <summary className="cursor-pointer font-medium text-rose-500">
-            Select up to 3 times
+          <div className="flex flex-wrap gap-2">
+            {selectedTimes[index].length > 0 ? (
+              selectedTimes[index].map((time) => (
+                <span
+                  key={time}
+                  className="bg-rose-500 text-white px-3 py-2 rounded-full text-sm"
+                >
+                  {time}
+                </span>
+              ))
+            ) : (
+              <span className="text-sm text-gray-500">
+                No time selected yet
+              </span>
+            )}
+          </div>
+        </div>
+
+        <details className="mt-2">
+          <summary className="cursor-pointer font-medium text-rose-500 text-sm">
+            Select up to 3 times for this date
           </summary>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mt-3">
             {TIME_SLOTS.map((time) => (
               <label
                 key={time}
                 className={`cursor-pointer border rounded-md px-2 py-2 text-center text-sm ${
                   selectedTimes[index].includes(time)
-                    ? 'bg-rose-500 text-white'
-                    : 'bg-white'
+                    ? 'bg-rose-500 text-white border-rose-500'
+                    : 'bg-white border-gray-200'
                 }`}
               >
                 <input
@@ -431,6 +455,28 @@ export default function Customize() {
   <p className="mt-3 text-sm text-ink-soft">
     Select 3 different weekend dates and up to 3 times for each date.
   </p>
+</div>
+
+<div>
+  <label className="block text-base tracking-[0.15em] uppercase text-rose-500 font-bold mb-4">
+    Tell Us About Your Skin Needs
+  </label>
+
+  <div className="bg-white border border-rose-100 rounded-xl p-5">
+    <textarea
+      required
+      maxLength={120}
+      rows={4}
+      value={skinNeeds}
+      onChange={(e) => setSkinNeeds(e.target.value)}
+      placeholder="Tell us about your skin concerns, goals or anything else you would like Sara to know."
+      className="w-full border border-ink/10 bg-white px-5 py-4 rounded-md resize-none outline-none focus:border-rose-500"
+    />
+
+    <p className="mt-2 text-sm text-gray-500">
+      {skinNeeds.length}/120 characters
+    </p>
+  </div>
 </div>
 
               <div>
