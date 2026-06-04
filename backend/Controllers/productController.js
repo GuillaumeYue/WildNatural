@@ -39,6 +39,12 @@ exports.createProduct = async (req, res) => {
             name, price, description, image, brand, category, countInStock
         });
 
+        if (price < 0 || countInStock < 0) {
+  return res.status(400).json({
+    message: 'Price and stock cannot be negative',
+  });
+}
+
         const createdProduct = await product.save();
         res.status(201).json(createdProduct);
     } catch (error) {
@@ -61,7 +67,11 @@ exports.updateProduct = async (req, res) => {
             product.brand = req.body.brand || product.brand;
             product.category = req.body.category || product.category;
             product.countInStock = req.body.countInStock || product.countInStock;
-
+if (req.body.price < 0 || req.body.countInStock < 0) {
+  return res.status(400).json({
+    message: 'Price and stock cannot be negative',
+  });
+}
             const updatedProduct = await product.save();
             res.json(updatedProduct);
         } else {
