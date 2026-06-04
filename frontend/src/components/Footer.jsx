@@ -31,7 +31,7 @@ const COLUMNS = [
   {
     titleKey: 'footer.col.contact',
     links: [
-      { tKey: 'footer.contactUs' },
+      { tKey: 'footer.contactUs', to: '/contact' },
       { tKey: 'footer.newsletter' },
     ],
   },

@@ -16,7 +16,6 @@ import {
   Search,
   Edit3,
   Trash2,
-  AlertCircle,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import logoWild from '../assets/logo-wild.png'
@@ -187,55 +186,65 @@ function StatusPill({ kind, children }) {
 // ─────────────────────────────────────────────────────────────
 //  1 · Dashboard Home — top-of-shift overview
 // ─────────────────────────────────────────────────────────────
+function orderStatus(o) {
+  if (o.isDelivered) return { kind: 'delivered', label: 'Delivered' }
+  if (o.isPaid) return { kind: 'paid', label: 'Paid' }
+  return { kind: 'new', label: 'New' }
+}
+
 function AdminHome() {
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let alive = true
+    API.get('/admin/dashboard/stats')
+      .then(({ data }) => alive && setStats(data))
+      .catch(
+        (err) =>
+          alive &&
+          setError(err.response?.data?.message || 'Failed to load dashboard.')
+      )
+      .finally(() => alive && setLoading(false))
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  if (loading) return <p className="text-ink-muted text-sm">Loading…</p>
+  if (error) return <p className="text-rose-500 text-sm">{error}</p>
+
+  const recentRows = (stats?.recentOrders || []).map((o) => {
+    const s = orderStatus(o)
+    return [
+      <span key="o" className="font-mono text-xs">#{o._id.slice(-6)}</span>,
+      o.user?.name || o.user?.email || '—',
+      `$${(o.totalPrice ?? 0).toFixed(2)}`,
+      <StatusPill key="s" kind={s.kind}>{s.label}</StatusPill>,
+      new Date(o.createdAt).toLocaleDateString(),
+    ]
+  })
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Stat label="Today's Sales" value="$0.00" delta="+0%" />
-        <Stat label="Orders Today" value="0" delta="+0%" />
-        <Stat label="New Customers" value="0" delta="+0%" />
-        <Stat label="Low Stock SKUs" value="0" delta="—" />
+        <Stat label="Total Revenue" value={`$${(stats?.totalRevenue ?? 0).toFixed(2)}`} />
+        <Stat label="Total Orders" value={stats?.totalOrders ?? 0} />
+        <Stat label="Customers" value={stats?.totalUsers ?? 0} />
+        <Stat label="Products" value={stats?.totalProducts ?? 0} />
       </div>
 
       <Card className="p-6">
-        <div className="flex items-baseline justify-between mb-4">
-          <h3 className="font-display text-xl font-semibold text-ink">
-            Recent Orders
-          </h3>
-          <Link to="#" className="text-xs text-rose-500 font-medium hover:underline">
-            View all →
-          </Link>
-        </div>
+        <h3 className="font-display text-xl font-semibold text-ink mb-4">
+          Recent Orders
+        </h3>
         <TableShell
           columns={['Order', 'Customer', 'Total', 'Status', 'Placed']}
-          rows={[]}
-          empty="Orders will appear here once GET /api/orders is wired up."
+          rows={recentRows}
+          empty="No orders yet."
         />
       </Card>
-
-      <div className="grid lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h3 className="font-display text-xl font-semibold text-ink mb-4">
-            Pending Customize Requests
-          </h3>
-          <p className="text-ink-muted text-sm">
-            No pending requests.
-          </p>
-        </Card>
-        <Card className="p-6">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-rose-500 mt-0.5" />
-            <div>
-              <h3 className="font-display text-xl font-semibold text-ink mb-2">
-                Low Stock Alerts
-              </h3>
-              <p className="text-ink-muted text-sm">
-                Items under your threshold will be listed here.
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
     </div>
   )
 }
@@ -244,48 +253,85 @@ function AdminHome() {
 //  2 · Orders
 // ─────────────────────────────────────────────────────────────
 function AdminOrders() {
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [busyId, setBusyId] = useState(null)
+
+  const fetchOrders = () => {
+    setLoading(true)
+    API.get('/orders/admin')
+      .then(({ data }) => setOrders(data))
+      .catch((err) =>
+        setError(err.response?.data?.message || 'Failed to load orders.')
+      )
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(fetchOrders, [])
+
+  const act = async (id, fn) => {
+    setBusyId(id)
+    try {
+      await fn()
+      fetchOrders()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Action failed.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const markPaid = (id) => act(id, () => API.put(`/orders/admin/${id}/pay`))
+  const markDelivered = (id) =>
+    act(id, () => API.put(`/orders/admin/${id}/deliver`))
+  const remove = (id) => {
+    if (!window.confirm('Delete this order? This cannot be undone.')) return
+    act(id, () => API.delete(`/orders/admin/${id}`))
+  }
+
+  if (loading) return <p className="text-ink-muted text-sm">Loading…</p>
+
+  const rows = orders.map((o) => {
+    const s = orderStatus(o)
+    const isBusy = busyId === o._id
+    return [
+      <span key="o" className="font-mono text-xs">#{o._id.slice(-6)}</span>,
+      o.user?.name || o.user?.email || '—',
+      new Date(o.createdAt).toLocaleDateString(),
+      `$${(o.totalPrice ?? 0).toFixed(2)}`,
+      <StatusPill key="s" kind={s.kind}>{s.label}</StatusPill>,
+      <div key="a" className="flex gap-2 flex-wrap">
+        {!o.isPaid && (
+          <ButtonGhost disabled={isBusy} onClick={() => markPaid(o._id)}>
+            Mark Paid
+          </ButtonGhost>
+        )}
+        {o.isPaid && !o.isDelivered && (
+          <ButtonGhost disabled={isBusy} onClick={() => markDelivered(o._id)}>
+            Mark Delivered
+          </ButtonGhost>
+        )}
+        <button
+          disabled={isBusy}
+          onClick={() => remove(o._id)}
+          className="text-ink-muted hover:text-rose-500 disabled:opacity-40"
+          aria-label="Delete order"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>,
+    ]
+  })
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3 flex-wrap">
-          <Search className="w-4 h-4 text-ink-muted" />
-          <input
-            placeholder="Search by order # or email"
-            className="border border-ink/15 rounded-md px-3 py-2 text-sm outline-none focus:border-rose-500 w-64"
-          />
-          <select className="border border-ink/15 rounded-md px-3 py-2 text-sm bg-white outline-none focus:border-rose-500">
-            <option>All statuses</option>
-            <option>Paid</option>
-            <option>Shipped</option>
-            <option>Delivered</option>
-            <option>Cancelled</option>
-            <option>Refunded</option>
-          </select>
-        </div>
-        <ButtonGhost>Export CSV</ButtonGhost>
-      </div>
-
+      {error && <p className="text-rose-500 text-sm">{error}</p>}
       <Card className="p-6">
         <TableShell
           columns={['Order #', 'Customer', 'Date', 'Total', 'Status', 'Actions']}
-          rows={[
-            [
-              <span key="o" className="font-mono text-xs">#000142</span>,
-              'sara@wild.com',
-              'May 29',
-              '$124.50',
-              <StatusPill key="s" kind="paid">Paid</StatusPill>,
-              <ButtonGhost key="a">View</ButtonGhost>,
-            ],
-            [
-              <span key="o" className="font-mono text-xs">#000141</span>,
-              'jane.doe@example.com',
-              'May 28',
-              '$48.00',
-              <StatusPill key="s" kind="shipped">Shipped</StatusPill>,
-              <ButtonGhost key="a">View</ButtonGhost>,
-            ],
-          ]}
+          rows={rows}
+          empty="No orders yet."
         />
       </Card>
     </div>
@@ -698,7 +744,9 @@ function AdminCustomers() {
   const customersMap = {}
 
   orders.forEach((order) => {
-    const userId = order.user?._id || order.user || order.email || order._id
+    const userId =
+      order.user?._id || order.user || order.email || order._id
+
     const name = order.user?.name || 'Guest Customer'
     const email = order.user?.email || 'No email'
 
@@ -715,7 +763,10 @@ function AdminCustomers() {
     customersMap[userId].orders += 1
     customersMap[userId].lifetimeValue += Number(order.totalPrice || 0)
 
-    if (new Date(order.createdAt) < new Date(customersMap[userId].joined)) {
+    if (
+      new Date(order.createdAt) <
+      new Date(customersMap[userId].joined)
+    ) {
       customersMap[userId].joined = order.createdAt
     }
   })
@@ -731,6 +782,10 @@ function AdminCustomers() {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <p className="text-sm text-rose-500 font-medium">{error}</p>
+      )}
+
       <div className="flex items-center gap-3">
         <Search className="w-4 h-4 text-ink-muted" />
 
@@ -742,16 +797,20 @@ function AdminCustomers() {
         />
       </div>
 
-      {error && (
-        <p className="text-sm text-rose-500 font-medium">{error}</p>
-      )}
-
       <Card className="p-6">
         {loading ? (
-          <p className="text-ink-muted text-sm">Loading customers...</p>
+          <p className="text-ink-muted text-sm">
+            Loading customers...
+          </p>
         ) : (
           <TableShell
-            columns={['Name', 'Email', 'Orders', 'Lifetime Value', 'Joined']}
+            columns={[
+              'Name',
+              'Email',
+              'Orders',
+              'Lifetime Value',
+              'Joined',
+            ]}
             rows={customers.map((customer) => [
               customer.name,
               customer.email,

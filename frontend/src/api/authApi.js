@@ -1,10 +1,11 @@
 import axios from 'axios'
 import API from './axiosInstance'
+import { API_BASE_URL } from './apiBase'
 
 // Public auth endpoints (no token needed) — use Krunal's /users routes,
 // which return the full profile (role, address, languagePreference, …)
 // rather than the older /auth routes that only returned name/email.
-const publicApi = axios.create({ baseURL: 'http://localhost:5000/api' })
+const publicApi = axios.create({ baseURL: API_BASE_URL })
 
 export const login = (formData) => publicApi.post('/users/login', formData)
 export const register = (formData) => publicApi.post('/users/register', formData)

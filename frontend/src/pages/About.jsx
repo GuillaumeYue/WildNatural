@@ -48,6 +48,7 @@ function Heritage() {
           <div className="space-y-4 text-ink-soft leading-relaxed text-base">
             <p>{t('about.heritageBody1')}</p>
             <p>{t('about.heritageBody2')}</p>
+            <p>{t('about.heritageBody3')}</p>
           </div>
         </div>
         <div className="aspect-[4/5] rounded-lg overflow-hidden bg-blush-100">
