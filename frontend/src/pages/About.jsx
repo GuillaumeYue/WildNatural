@@ -6,6 +6,7 @@ import iconRabbit from '../assets/icon-rabbit.png'
 import iconBag from '../assets/icon-bag.png'
 import founderPortrait from '../assets/founder-portrait.jpg'
 import { useLang } from '../contexts/LanguageContext'
+import FadeIn from '../components/motion/FadeIn'
 
 const VALUES = [
   { icon: iconLeaves, titleKey: 'about.value.natural', bodyKey: 'about.value.naturalBody' },
@@ -36,7 +37,7 @@ function Heritage() {
   const { t } = useLang()
   return (
     <section className="bg-white py-24 px-10">
-      <div className="mx-auto max-w-[1200px] grid md:grid-cols-2 gap-16 items-center">
+      <FadeIn className="mx-auto max-w-[1200px] grid md:grid-cols-2 gap-16 items-center">
         <div>
           <p className="text-xs tracking-[0.3em] uppercase text-rose-500 mb-4 font-semibold">
             {t('about.heritageLabel')}
@@ -56,7 +57,7 @@ function Heritage() {
             className="w-full h-full object-cover"
           />
         </div>
-      </div>
+      </FadeIn>
     </section>
   )
 }
@@ -65,7 +66,7 @@ function OurPromise() {
   const { t } = useLang()
   return (
     <section className="bg-blush-50 py-24 px-10">
-      <div className="mx-auto max-w-[1200px]">
+      <FadeIn className="mx-auto max-w-[1200px]">
         <div className="text-center mb-16">
           <p className="text-xs tracking-[0.3em] uppercase text-rose-500 mb-4 font-semibold">
             {t('about.promiseLabel')}
@@ -90,7 +91,7 @@ function OurPromise() {
             </div>
           ))}
         </div>
-      </div>
+      </FadeIn>
     </section>
   )
 }
@@ -99,7 +100,7 @@ function Closing() {
   const { t } = useLang()
   return (
     <section className="bg-rose-500 text-cream py-24 px-10">
-      <div className="mx-auto max-w-[800px] text-center">
+      <FadeIn className="mx-auto max-w-[800px] text-center">
         <p className="text-[11px] tracking-[0.3em] uppercase opacity-70 mb-6 font-medium">
           {t('about.inclusionLabel')}
         </p>
@@ -109,7 +110,7 @@ function Closing() {
         <p className="text-lg italic opacity-90 leading-relaxed">
           {t('about.inclusionBody')}
         </p>
-      </div>
+      </FadeIn>
     </section>
   )
 }

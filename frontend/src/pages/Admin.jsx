@@ -569,132 +569,496 @@ function AdminProducts() {
 //  4 · Inventory
 // ─────────────────────────────────────────────────────────────
 function AdminInventory() {
+  const [products, setProducts] = useState([])
+  const [filter, setFilter] = useState('all')
+  const [threshold, setThreshold] = useState(5)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true)
+      setError('')
+
+      const { data } = await API.get('/products')
+      setProducts(data)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch inventory')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [])
+
+  const filteredProducts = products.filter((product) => {
+    if (filter === 'low') {
+      return product.countInStock > 0 && product.countInStock <= threshold
+    }
+
+    if (filter === 'out') {
+      return product.countInStock === 0
+    }
+
+    return true
+  })
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <select className="border border-ink/15 rounded-md px-3 py-2 text-sm bg-white outline-none focus:border-rose-500">
-            <option>All products</option>
-            <option>Low stock only</option>
-            <option>Out of stock</option>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="border border-ink/15 rounded-md px-3 py-2 text-sm bg-white outline-none focus:border-rose-500"
+          >
+            <option value="all">All products</option>
+            <option value="low">Low stock only</option>
+            <option value="out">Out of stock</option>
           </select>
         </div>
+
         <div className="text-xs text-ink-muted flex items-center gap-2">
           Low-stock threshold:
           <input
             type="number"
-            defaultValue={5}
+            min="1"
+            value={threshold}
+            onChange={(e) => setThreshold(Number(e.target.value))}
             className="w-16 border border-ink/15 rounded px-2 py-1 text-ink"
           />
         </div>
       </div>
 
+      {error && (
+        <p className="text-sm text-rose-500 font-medium">{error}</p>
+      )}
+
       <Card className="p-6">
-        <TableShell
-          columns={['Product', 'Stock', 'Reserved', 'Available', 'Adjust']}
-          rows={[
-            [
-              'WILD Botanical Serum',
-              '24',
-              '2',
-              '22',
-              <div key="a" className="flex gap-1">
-                <ButtonGhost>−</ButtonGhost>
-                <ButtonGhost>+</ButtonGhost>
-              </div>,
-            ],
-            [
-              <span key="n" className="font-medium text-ink">WILD Hydrating Cleanser</span>,
-              <span key="s" className="text-rose-500 font-medium">3</span>,
-              '0',
-              '3',
-              <div key="a" className="flex gap-1">
-                <ButtonGhost>−</ButtonGhost>
-                <ButtonGhost>+</ButtonGhost>
-              </div>,
-            ],
-          ]}
-        />
+        {loading ? (
+          <p className="text-ink-muted text-sm">Loading inventory...</p>
+        ) : (
+          <TableShell
+            columns={['Product', 'Stock', 'Status']}
+            rows={filteredProducts.map((product) => [
+              product.name,
+
+              product.countInStock,
+
+              product.countInStock === 0 ? (
+                <StatusPill key="status" kind="cancelled">
+                  Out of stock
+                </StatusPill>
+              ) : product.countInStock <= threshold ? (
+                <StatusPill key="status" kind="paid">
+                  Low stock
+                </StatusPill>
+              ) : (
+                <StatusPill key="status" kind="active">
+                  In stock
+                </StatusPill>
+              ),
+            ])}
+            empty="No inventory found."
+          />
+        )}
       </Card>
     </div>
   )
 }
-
 // ─────────────────────────────────────────────────────────────
 //  5 · Customers
 // ─────────────────────────────────────────────────────────────
 function AdminCustomers() {
+  const [orders, setOrders] = useState([])
+  const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true)
+      setError('')
+
+      const { data } = await API.get('/orders/admin')
+      setOrders(data)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch customers')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrders()
+  }, [])
+
+  const customersMap = {}
+
+  orders.forEach((order) => {
+    const userId = order.user?._id || order.user || order.email || order._id
+    const name = order.user?.name || 'Guest Customer'
+    const email = order.user?.email || 'No email'
+
+    if (!customersMap[userId]) {
+      customersMap[userId] = {
+        name,
+        email,
+        orders: 0,
+        lifetimeValue: 0,
+        joined: order.createdAt,
+      }
+    }
+
+    customersMap[userId].orders += 1
+    customersMap[userId].lifetimeValue += Number(order.totalPrice || 0)
+
+    if (new Date(order.createdAt) < new Date(customersMap[userId].joined)) {
+      customersMap[userId].joined = order.createdAt
+    }
+  })
+
+  const customers = Object.values(customersMap).filter((customer) => {
+    const keyword = search.toLowerCase()
+
+    return (
+      customer.name.toLowerCase().includes(keyword) ||
+      customer.email.toLowerCase().includes(keyword)
+    )
+  })
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Search className="w-4 h-4 text-ink-muted" />
+
         <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or email"
           className="border border-ink/15 rounded-md px-3 py-2 text-sm outline-none focus:border-rose-500 w-72"
         />
       </div>
 
+      {error && (
+        <p className="text-sm text-rose-500 font-medium">{error}</p>
+      )}
+
       <Card className="p-6">
-        <TableShell
-          columns={['Name', 'Email', 'Orders', 'Lifetime Value', 'Joined']}
-          rows={[]}
-          empty="Customers will appear here once GET /api/users is wired up."
-        />
+        {loading ? (
+          <p className="text-ink-muted text-sm">Loading customers...</p>
+        ) : (
+          <TableShell
+            columns={['Name', 'Email', 'Orders', 'Lifetime Value', 'Joined']}
+            rows={customers.map((customer) => [
+              customer.name,
+              customer.email,
+              customer.orders,
+              `$${customer.lifetimeValue.toFixed(2)}`,
+              customer.joined
+                ? new Date(customer.joined).toLocaleDateString()
+                : '—',
+            ])}
+            empty="No customers yet. Customers will appear after they make a purchase."
+          />
+        )}
       </Card>
     </div>
   )
 }
-
 // ─────────────────────────────────────────────────────────────
 //  6 · Promo Codes
 // ─────────────────────────────────────────────────────────────
 function AdminPromos() {
+  const [promos, setPromos] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
+  const [editingId, setEditingId] = useState(null)
+
+  const [form, setForm] = useState({
+    code: '',
+    type: 'percent',
+    value: '',
+    expiresAt: '',
+    isActive: true,
+  })
+
+  const emptyForm = {
+    code: '',
+    type: 'percent',
+    value: '',
+    expiresAt: '',
+    isActive: true,
+  }
+
+  const fetchPromos = async () => {
+    try {
+      setLoading(true)
+      setError('')
+
+      const { data } = await API.get('/promocodes')
+
+      setPromos(data)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch promo codes')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchPromos()
+  }, [])
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    try {
+      setError('')
+      setMessage('')
+
+      const payload = {
+        ...form,
+        value: Number(form.value),
+      }
+
+      if (editingId) {
+        await API.put(`/promocodes/${editingId}`, payload)
+        setMessage('Promo code updated successfully')
+      } else {
+        await API.post('/promocodes', payload)
+        setMessage('Promo code created successfully')
+      }
+
+      setForm(emptyForm)
+      setEditingId(null)
+
+      fetchPromos()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to save promo code')
+    }
+  }
+
+  const handleEdit = (promo) => {
+    setEditingId(promo._id)
+
+    setForm({
+      code: promo.code || '',
+      type: promo.type || 'percent',
+      value: promo.value || '',
+      expiresAt: promo.expiresAt
+        ? promo.expiresAt.split('T')[0]
+        : '',
+      isActive: promo.isActive,
+    })
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      'Delete this promo code?'
+    )
+
+    if (!confirmDelete) return
+
+    try {
+      await API.delete(`/promocodes/${id}`)
+
+      setMessage('Promo code deleted successfully')
+
+      fetchPromos()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete promo code')
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <ButtonPrimary icon={Plus}>Create code</ButtonPrimary>
-      </div>
-
       <Card className="p-6">
-        <TableShell
-          columns={['Code', 'Type', 'Value', 'Used', 'Expires', 'Status', 'Actions']}
-          rows={[
-            [
-              <span key="c" className="font-mono font-semibold text-ink">WELCOME10</span>,
-              'Percent',
-              '10%',
-              '0',
-              '—',
-              <StatusPill key="s" kind="active">Active</StatusPill>,
-              <ButtonGhost key="a" icon={Edit3}>Edit</ButtonGhost>,
-            ],
-            [
-              <span key="c" className="font-mono font-semibold text-ink">WILD5</span>,
-              'Amount',
-              '$5.00',
-              '0',
-              '—',
-              <StatusPill key="s" kind="active">Active</StatusPill>,
-              <ButtonGhost key="a" icon={Edit3}>Edit</ButtonGhost>,
-            ],
-            [
-              <span key="c" className="font-mono font-semibold text-ink">FREESHIP</span>,
-              'Free shipping',
-              '—',
-              '0',
-              '—',
-              <StatusPill key="s" kind="active">Active</StatusPill>,
-              <ButtonGhost key="a" icon={Edit3}>Edit</ButtonGhost>,
-            ],
-          ]}
-        />
+        <h3 className="font-display text-xl font-semibold text-ink mb-4">
+          {editingId ? 'Edit Promo Code' : 'Create Promo Code'}
+        </h3>
+
+        {message && (
+          <p className="mb-4 text-sm text-green-600 font-medium">
+            {message}
+          </p>
+        )}
+
+        {error && (
+          <p className="mb-4 text-sm text-rose-500 font-medium">
+            {error}
+          </p>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          className="grid md:grid-cols-2 gap-4"
+        >
+          <input
+            name="code"
+            placeholder="Promo Code"
+            value={form.code}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded uppercase"
+            required
+          />
+
+          <select
+            name="type"
+            value={form.type}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded bg-white"
+          >
+            <option value="percent">Percent</option>
+            <option value="amount">Amount</option>
+            <option value="free_shipping">
+              Free Shipping
+            </option>
+          </select>
+
+          <input
+            name="value"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Value"
+            value={form.value}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded"
+          />
+
+          <input
+            name="expiresAt"
+            type="date"
+            value={form.expiresAt}
+            onChange={handleChange}
+            className="border border-ink/15 p-2 rounded"
+          />
+
+          <label className="flex items-center gap-2 text-sm text-ink">
+            <input
+              type="checkbox"
+              name="isActive"
+              checked={form.isActive}
+              onChange={handleChange}
+            />
+            Active
+          </label>
+
+          <div className="md:col-span-2 flex gap-3">
+            <ButtonPrimary type="submit">
+              {editingId
+                ? 'Update Promo'
+                : 'Create Promo'}
+            </ButtonPrimary>
+
+            {editingId && (
+              <ButtonGhost
+                type="button"
+                onClick={() => {
+                  setEditingId(null)
+                  setForm(emptyForm)
+                }}
+              >
+                Cancel
+              </ButtonGhost>
+            )}
+          </div>
+        </form>
       </Card>
 
-      <p className="text-xs text-ink-muted italic">
-        Codes are read from <code className="bg-blush-50 px-1.5 py-0.5 rounded">frontend/src/lib/promo.js</code>{' '}
-        until the backend exposes a <code className="bg-blush-50 px-1.5 py-0.5 rounded">PromoCode</code> model
-        and <code className="bg-blush-50 px-1.5 py-0.5 rounded">POST /api/promo/validate</code>.
-      </p>
+      <Card className="p-6">
+        {loading ? (
+          <p className="text-ink-muted text-sm">
+            Loading promo codes...
+          </p>
+        ) : (
+          <TableShell
+            columns={[
+              'Code',
+              'Type',
+              'Value',
+              'Used',
+              'Expires',
+              'Status',
+              'Actions',
+            ]}
+            rows={promos.map((promo) => [
+              <span
+                key="code"
+                className="font-mono font-semibold text-ink"
+              >
+                {promo.code}
+              </span>,
+
+              promo.type,
+
+              promo.type === 'percent'
+                ? `${promo.value}%`
+                : promo.type === 'amount'
+                  ? `$${promo.value}`
+                  : 'Free Shipping',
+
+              promo.usedCount || 0,
+
+              promo.expiresAt
+                ? new Date(
+                    promo.expiresAt
+                  ).toLocaleDateString()
+                : '—',
+
+              promo.isActive ? (
+                <StatusPill key="status" kind="active">
+                  Active
+                </StatusPill>
+              ) : (
+                <StatusPill
+                  key="status"
+                  kind="cancelled"
+                >
+                  Disabled
+                </StatusPill>
+              ),
+
+              <div
+                key="actions"
+                className="flex gap-2"
+              >
+                <ButtonGhost
+                  onClick={() => handleEdit(promo)}
+                >
+                  Edit
+                </ButtonGhost>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleDelete(promo._id)
+                  }
+                  className="text-ink-muted hover:text-rose-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>,
+            ])}
+            empty="No promo codes found."
+          />
+        )}
+      </Card>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import iconRabbit from '../assets/icon-rabbit.png'
 import iconBag from '../assets/icon-bag.png'
 import heroBottles from '../assets/hero-bottles.png'
 import { useLang } from '../contexts/LanguageContext'
+import FadeIn from '../components/motion/FadeIn'
 
 const FEATURES = [
   { icon: iconLeaves, tKey: 'home.natural' },
@@ -57,15 +58,21 @@ function WhyUs() {
   return (
     <section className="relative bg-blush-50 pb-24 pt-16">
       <div className="mx-auto max-w-[1400px] px-10">
-        <h2 className="font-display text-2xl font-medium tracking-[0.15em] text-ink">
-          {t('home.whyUs')}
-        </h2>
+        <FadeIn>
+          <h2 className="font-display text-2xl font-medium tracking-[0.15em] text-ink">
+            {t('home.whyUs')}
+          </h2>
+        </FadeIn>
 
         <div className="mt-16 grid grid-cols-1 gap-16 md:grid-cols-3">
-          {FEATURES.map(({ icon, tKey }) => {
+          {FEATURES.map(({ icon, tKey }, i) => {
             const label = t(tKey)
             return (
-              <div key={tKey} className="flex flex-col items-center text-center">
+              <FadeIn
+                key={tKey}
+                delay={i * 0.12}
+                className="flex flex-col items-center text-center"
+              >
                 <MaskedIcon
                   src={icon}
                   alt={label.replace('\n', ' ')}
@@ -74,7 +81,7 @@ function WhyUs() {
                 <p className="mt-6 whitespace-pre-line text-base font-normal text-ink">
                   {label}
                 </p>
-              </div>
+              </FadeIn>
             )
           })}
         </div>

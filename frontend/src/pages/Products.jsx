@@ -29,12 +29,12 @@ function addToCart(product, navigate) {
 
   const existingItem = existingItems.find((item) => item.id === product._id)
 
-  if (product.countInStock === 0) {
+  if (Number(product.countInStock) === 0) {
     alert('This product is out of stock')
     return
   }
 
-  if (existingItem && existingItem.qty >= product.countInStock) {
+  if (existingItem && existingItem.qty >= Number(product.countInStock)) {
     alert(`Only ${product.countInStock} item(s) available in stock`)
     return
   }
@@ -88,13 +88,14 @@ function HeroShowcase({ product }) {
               {getProductDescription(product, t)}
             </p>
 
-            {product.countInStock <= 5 && product.countInStock > 0 && (
-              <p className="text-sm text-rose-500 font-medium mb-4">
-                Only {product.countInStock} left in stock
-              </p>
-            )}
+            {Number(product.countInStock) <= 5 &&
+              Number(product.countInStock) > 0 && (
+                <p className="text-sm text-rose-500 font-medium mb-4">
+                  Only {product.countInStock} left in stock
+                </p>
+              )}
 
-            {product.countInStock === 0 && (
+            {Number(product.countInStock) === 0 && (
               <p className="text-sm text-ink-muted font-medium mb-4">
                 Out of stock
               </p>
@@ -103,11 +104,11 @@ function HeroShowcase({ product }) {
             <div className="flex items-center gap-4 flex-wrap mb-8">
               <button
                 type="button"
-                disabled={product.countInStock === 0}
+                disabled={Number(product.countInStock) === 0}
                 onClick={() => addToCart(product, navigate)}
                 className="rounded-md bg-rose-500 px-10 py-4 text-sm font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {product.countInStock === 0
+                {Number(product.countInStock) === 0
                   ? 'OUT OF STOCK'
                   : t('products.shopNow')}
               </button>
@@ -175,13 +176,14 @@ function ProductCard({ product }) {
         {getProductDescription(product, t)}
       </p>
 
-      {product.countInStock <= 5 && product.countInStock > 0 && (
-        <p className="text-xs text-rose-500 font-medium mb-3">
-          Only {product.countInStock} left in stock
-        </p>
-      )}
+      {Number(product.countInStock) <= 5 &&
+        Number(product.countInStock) > 0 && (
+          <p className="text-xs text-rose-500 font-medium mb-3">
+            Only {product.countInStock} left in stock
+          </p>
+        )}
 
-      {product.countInStock === 0 && (
+      {Number(product.countInStock) === 0 && (
         <p className="text-xs text-ink-muted font-medium mb-3">
           Out of stock
         </p>
@@ -193,11 +195,11 @@ function ProductCard({ product }) {
 
       <button
         type="button"
-        disabled={product.countInStock === 0}
+        disabled={Number(product.countInStock) === 0}
         onClick={() => addToCart(product, navigate)}
         className="rounded-md bg-rose-500 px-5 py-3 text-xs font-bold tracking-[0.2em] text-cream transition-colors hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {product.countInStock === 0 ? 'OUT OF STOCK' : 'ADD TO CART'}
+        {Number(product.countInStock) === 0 ? 'OUT OF STOCK' : 'ADD TO CART'}
       </button>
     </article>
   )
