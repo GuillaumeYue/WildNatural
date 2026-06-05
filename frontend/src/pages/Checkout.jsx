@@ -6,6 +6,7 @@ import API from '../api/axiosInstance'
 import { useAuth } from '../contexts/AuthContext'
 import { useLang } from '../contexts/LanguageContext'
 import { calculatePricing } from '../lib/pricing'
+import FadeIn from '../components/motion/FadeIn'
 
 const STORAGE_KEY = 'wild.checkoutItems'
 
@@ -131,9 +132,11 @@ export default function Checkout() {
 
       <main className="flex-1 pt-32 pb-24 px-10">
         <div className="mx-auto max-w-[1200px]">
-          <h1 className="font-display text-4xl md:text-5xl font-semibold text-ink text-center mb-16">
-            {t('checkout.title')}
-          </h1>
+          <FadeIn>
+            <h1 className="font-display text-4xl md:text-5xl font-semibold text-ink text-center mb-16">
+              {t('checkout.title')}
+            </h1>
+          </FadeIn>
 
           <form
             onSubmit={handleSubmit}

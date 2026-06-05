@@ -13,6 +13,7 @@ import OrderConfirmation from './pages/OrderConfirmation'
 import Profile from './pages/Profile'
 import Admin from './pages/Admin'
 import Contact from './pages/Contact'
+import NotFound from './pages/NotFound'
 
 /**
  * Routes wrapped in a cross-fade. The wrapper animates opacity only
@@ -42,12 +43,12 @@ function AnimatedRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/customize" element={<Customize />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>
     </AnimatePresence>

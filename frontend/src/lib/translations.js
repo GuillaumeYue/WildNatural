@@ -203,6 +203,11 @@ export const translations = {
     'customize.consultation':   'Consultation Option',
     'customize.policy':         'Appointment & Payment Policy',
     'customize.submit':         'SUBMIT REQUEST',
+
+    // ──── 404 ────
+    'notFound.title':           'Page not found',
+    'notFound.message':         'The page you’re looking for doesn’t exist or has moved. Let’s get you back to something lovely.',
+    'notFound.cta':             'Back to Home',
   },
 
   fr: {
@@ -392,5 +397,10 @@ export const translations = {
     'customize.consultation':   'Option de consultation',
     'customize.policy':         'Politique de rendez-vous et de paiement',
     'customize.submit':         'ENVOYER LA DEMANDE',
+
+    // ──── 404 ────
+    'notFound.title':           'Page introuvable',
+    'notFound.message':         'La page que vous cherchez n’existe pas ou a été déplacée. Revenons à quelque chose d’agréable.',
+    'notFound.cta':             'Retour à l’accueil',
   },
 }

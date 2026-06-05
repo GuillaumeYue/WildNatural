@@ -5,6 +5,7 @@ import Nav from '../components/Nav'
 import Footer from '../components/Footer'
 import { useAuth } from '../contexts/AuthContext'
 import { useLang } from '../contexts/LanguageContext'
+import FadeIn from '../components/motion/FadeIn'
 
 const SECTIONS = [
   { key: 'account',  tKey: 'profile.section.account' },
@@ -471,15 +472,17 @@ export default function Profile() {
       <main className="flex-1 pt-32 pb-24 px-10">
         <div className="mx-auto max-w-[1200px]">
           {/* Header */}
-          <p className="text-xs tracking-[0.3em] uppercase text-ink-muted mb-4">
-            {t('profile.crumb')}
-          </p>
-          <h1 className="font-display text-4xl md:text-5xl font-semibold text-ink mb-2">
-            {t('profile.title')}
-          </h1>
-          <p className="text-ink-soft mb-12">
-            {t('profile.welcome')} {firstName}.
-          </p>
+          <FadeIn>
+            <p className="text-xs tracking-[0.3em] uppercase text-ink-muted mb-4">
+              {t('profile.crumb')}
+            </p>
+            <h1 className="font-display text-4xl md:text-5xl font-semibold text-ink mb-2">
+              {t('profile.title')}
+            </h1>
+            <p className="text-ink-soft mb-12">
+              {t('profile.welcome')} {firstName}.
+            </p>
+          </FadeIn>
 
           <div className="grid lg:grid-cols-[240px_1fr] gap-10">
             {/* Sidebar nav */}

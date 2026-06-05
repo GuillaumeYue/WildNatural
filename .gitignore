@@ -35,3 +35,9 @@ frontend/build/
 .vscode/
 .DS_Store
 *.log
+
+# Planning docs / office files (keep out of the code repo)
+*.docx
+*.doc
+*.pdf
+~$*
