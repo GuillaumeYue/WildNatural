@@ -160,16 +160,21 @@ function ProductCard({ product }) {
 
   return (
     <article className="w-72 group">
-      <div className="aspect-[4/5] bg-blush-50 mb-5 overflow-hidden flex items-center justify-center">
+      <Link
+        to={`/products/${product._id}`}
+        className="mb-5 flex aspect-[4/5] items-center justify-center overflow-hidden bg-blush-50"
+      >
         <img
           src={product.image || heroProductImg}
           className="max-w-[85%] max-h-[85%] object-contain transition-transform duration-500 group-hover:scale-105"
           alt={product.name}
         />
-      </div>
+      </Link>
 
       <h3 className="font-display text-lg font-semibold text-rose-500 mb-2">
-        {product.name}
+        <Link to={`/products/${product._id}`} className="hover:underline">
+          {product.name}
+        </Link>
       </h3>
 
       <p className="text-sm text-ink-soft mb-3 leading-relaxed">

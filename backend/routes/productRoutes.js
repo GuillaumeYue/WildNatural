@@ -2,24 +2,26 @@ const express = require('express');
 const router = express.Router();
 
 const {
-  createCustomization,
-  getAllCustomizations,
-  getCustomizationById,
-  updateCustomizationStatus,
-  deleteCustomization,
-} = require('../Controllers/customizationController');
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} = require('../Controllers/productController');
 
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 
-router.post('/', createCustomization);
+// /api/products
+router
+  .route('/')
+  .get(getProducts)
+  .post(protect, adminOnly, createProduct);
 
-router.get('/admin', protect, adminOnly, getAllCustomizations);
-
+// /api/products/:id
 router
   .route('/:id')
-  .get(protect, adminOnly, getCustomizationById)
-  .delete(protect, adminOnly, deleteCustomization);
-
-router.put('/:id/status', protect, adminOnly, updateCustomizationStatus);
+  .get(getProductById)
+  .put(protect, adminOnly, updateProduct)
+  .delete(protect, adminOnly, deleteProduct);
 
 module.exports = router;

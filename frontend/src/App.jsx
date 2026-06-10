@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Welcome from './pages/Welcome'
 import About from './pages/About'
 import Products from './pages/Products'
+import ProductDetail from './pages/ProductDetail'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Customize from './pages/Customize'
@@ -39,6 +40,7 @@ function AnimatedRoutes() {
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
