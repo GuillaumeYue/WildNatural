@@ -41,3 +41,5 @@ frontend/build/
 *.doc
 *.pdf
 ~$*
+# Local tooling config (keep out of repo)
+.claude/
